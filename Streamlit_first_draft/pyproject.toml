@@ -1,0 +1,12 @@
+[project]
+name = "veille-ia-streamlit"
+version = "0.1.0"
+description = "Portail de Veille CTO Advisory Streamlit Application"
+readme = "README.md"
+requires-python = ">=3.11"
+dependencies = [
+    "streamlit>=1.30.0",
+]
+
+[dependency-groups]
+dev = []
