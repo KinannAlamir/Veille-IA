@@ -10,10 +10,10 @@ Bâti entièrement en HTML5, CSS3 standard et JavaScript moderne, ce portail res
 - **Fidélité à la DA Wavestone** : Palette de couleurs signature (fonds épurés blanc/lavande, accents violine et vert néon haut de gamme) et typographies soignées (`DM Sans` et `Space Grotesk`).
 - **Performance & fluidité** : Version web native (zéro temps de rechargement contrairement au prototype initial sous Streamlit).
 - **Parcours de veille complet** :
-  - **Vue d'ensemble** : Dashboard et statistiques clés d'activité et de budget.
-  - **Choix des sujets** : Activation dynamique des 12 axes d'innovation stratégiques suivis.
-  - **Actualités** : Flux dynamique d'articles analysés, affichant les faits notables extraits par Gemini 3.5 Flash et hashtags générés.
-  - **Contenu & Diffusion** : Module de rédaction automatique de livrables ou posts LinkedIn d'aide au personnel branding.
+  - **Vue d'ensemble** : Dashboard stratégique central. Il affiche des métriques clés (sujets actifs, signaux de la semaine, sources connectées), le flux des 3 derniers signaux prioritaires et une infographie dynamique de l'état d'avancement de votre workflow de collecte.
+  - **Choix des sujets** : Espace de configuration sur-mesure. Activez d'un clic les axes d'innovation stratégiques suivis d'un côté. Ajustez l'importance de vos flux à l'aide des flèches d'ordonnancement (Ordre de préférence) et des dropdowns de quotas cibles (`MAX / MODÉRÉ / RESTREINT`) de l'autre pour moduler l'intensité du robot de crawling.
+  - **Actualités** : Flux de lecture immersif. Conçu pour le scrolling direct façon "fil d'actualité LinkedIn" pour correspondre à vos usages. Il intègre de l'engagement (likes, republier, envoyer) et s'adapte à votre niveau de lecture (`HIGH level` pour des points clés de surface / décisifs OU `LOW level` pour des points clés d'ingénierie technique / profonds).
+  - **Contenu & Diffusion** : Module de valorisation et de Personal Branding. Choisissez votre format de diffusion (Post LinkedIn, Newsletter, Note de Synthèse), sélectionnez vos signaux technologiques cibles à inclure, configurez votre consigne de rédaction éditoriale et copiez d'un clic votre brouillon automatisé de haute qualité.
 - **Persistance locale** : Sauvegarde automatique de vos sélections de thématiques dans le `localStorage` du navigateur.
 
 ---
