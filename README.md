@@ -54,3 +54,19 @@ VeilleIA/
 ├── app.js         # Logique d'affichage, filtres dynamiques, modèle d'état et persistance locale
 └── README.md      # Le présent guide d'installation et d'utilisation
 ```
+
+---
+
+## ☁️ Déploiement sur GitHub Pages (Showcase)
+
+L'application étant entièrement statique (HTML/CSS/JS sans compilation), elle s'héberge gratuitement en quelques clics via **GitHub Pages** directement à partir de la racine :
+
+1. Allez sur votre dépôt GitHub en ligne : `https://github.com/KinannAlamir/Veille-IA`
+2. Cliquez sur l'onglet **Settings** (Paramètres⚙️).
+3. Dans le menu de gauche, sous la section *Code and automation*, cliquez sur **Pages**.
+4. Sous **Build and deployment** :
+   - Source : Sélectionnez **Deploy from a branch**.
+   - Branch : Choisissez la branche **`main`** et le dossier **`/ (root)`**.
+5. Cliquez sur **Save**.
+6. Patientez 1 à 2 minutes. GitHub vous fournira l'URL publique de votre site (généralement : `https://kinannalamir.github.io/Veille-IA/`).
+
