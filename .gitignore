@@ -1,0 +1,7 @@
+private-instructions.md
+.DS_Store
+.env
+.local
+*.config
+*.log
+__pycache__/
