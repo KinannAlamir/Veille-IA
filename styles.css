@@ -1,0 +1,136 @@
+/* Custom Styles - Wavestone CTO Advisory Signal */
+
+/* Transitions and smoothness */
+.nav-item {
+    transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.nav-item.active {
+    background-color: #ffffff !important;
+    color: #29126d !important;
+}
+
+/* Page Section transition animations */
+.page-section {
+    animation: fadeIn 0.3s cubic-bezier(0.4, 0, 0.2, 1) forwards;
+}
+
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(6px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+/* Card hover animation with custom subtle shadow & lift */
+.premium-card {
+    transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.premium-card:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 12px 25px -4px rgba(41, 18, 109, 0.08), 0 8px 16px -6px rgba(41, 18, 109, 0.04);
+    border-color: #4a20d1;
+}
+
+/* Custom Scrollbar for better UI experience */
+::-webkit-scrollbar {
+    width: 6px;
+    height: 6px;
+}
+
+::-webkit-scrollbar-track {
+    background: transparent;
+}
+
+::-webkit-scrollbar-thumb {
+    background: #d9d4ef;
+    border-radius: 99px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+    background: #a9a0dc;
+}
+
+/* Checked styling for custom topics card checkboxes */
+.topic-cb-label {
+    position: relative;
+    user-select: none;
+    transition: all 0.2s ease;
+}
+
+.topic-box-card {
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.topic-box-card.active {
+    border-color: #4a20d1;
+    background-color: #f6f3ff;
+}
+
+/* Custom Checkbox styles */
+.styled-checkbox {
+    appearance: none;
+    background-color: #fff;
+    border: 1px solid #d9d4ef;
+    padding: 8px;
+    border-radius: 6px;
+    display: inline-block;
+    position: relative;
+    cursor: pointer;
+    transition: all 0.15s ease;
+}
+
+.styled-checkbox:checked {
+    background-color: #00df80;
+    border-color: #00df80;
+}
+
+.styled-checkbox:checked::after {
+    content: '';
+    position: absolute;
+    left: 5px;
+    top: 2px;
+    width: 5px;
+    height: 9px;
+    border: solid #29126d;
+    border-width: 0 2px 2px 0;
+    transform: rotate(45deg);
+}
+
+/* Live indicators and news feed cards styling */
+.ai-badge {
+    background: #ede9ff;
+    color: #4a20d1;
+    font-weight: 700;
+}
+
+.score-badge-high {
+    color: #08a85f;
+    font-weight: 700;
+}
+
+/* Horizontal timelines indicator lines */
+.workflow-line-done {
+    background-color: #00df80;
+}
+
+/* Toast animations */
+.toast-msg {
+    animation: slideInRight 0.3d cubic-bezier(0.175, 0.885, 0.32, 1.1) forwards;
+}
+
+@keyframes slideInRight {
+    0% {
+        opacity: 0;
+        transform: translateX(100px) scale(0.9);
+    }
+    100% {
+        opacity: 1;
+        transform: translateX(0) scale(1);
+    }
+}

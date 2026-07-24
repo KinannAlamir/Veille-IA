@@ -1,0 +1,417 @@
+<!DOCTYPE html>
+<html lang="fr" class="h-full bg-slate-50">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Signal | Wavestone CTO Advisory</title>
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;700&family=Space+Grotesk:wght@500;600;700&display=swap" rel="stylesheet">
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Lucide Icons CDN -->
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <link rel="stylesheet" href="styles.css">
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        brand: {
+                            ink: '#21145f',
+                            violet: '#4a20d1',
+                            violetDark: '#29126d',
+                            violetSoft: '#ede9ff',
+                            green: '#00df80',
+                            mint: '#ddfff0',
+                            paper: '#fbfbfd',
+                            line: '#d9d4ef',
+                            muted: '#6e6b7d',
+                        }
+                    },
+                    fontFamily: {
+                        sans: ['"DM Sans"', 'sans-serif'],
+                        display: ['"Space Grotesk"', 'sans-serif'],
+                    }
+                }
+            }
+        }
+    </script>
+</head>
+<body class="h-full font-sans antialiased text-slate-800 bg-brand-paper flex flex-col md:flex-row overflow-hidden">
+
+    <!-- Mobile Header -->
+    <header class="md:hidden bg-brand-violetDark text-white px-4 py-3 flex items-center justify-between z-20 shadow-md">
+        <div class="flex items-center gap-2">
+            <div class="w-8 h-8 rounded-lg bg-brand-green text-brand-violetDark flex items-center justify-center font-bold text-lg font-display">◈</div>
+            <span class="font-display font-bold text-xl tracking-tight">signal<span class="text-brand-green">.</span></span>
+        </div>
+        <button id="mobile-menu-btn" class="p-1 rounded-md hover:bg-white/10 active:bg-white/20 transition-all">
+            <i data-lucide="menu" class="w-6 h-6"></i>
+        </button>
+    </header>
+
+    <!-- Sidebar Navigation -->
+    <aside id="sidebar" class="fixed inset-y-0 left-0 w-64 bg-brand-violetDark text-white flex flex-col z-35 -translate-x-full md:translate-x-0 md:relative md:flex transition-transform duration-350 ease-in-out">
+        <div class="p-6">
+            <!-- Brand Logo -->
+            <div class="flex items-center gap-3">
+                <div class="w-9 h-9 rounded-lg bg-brand-green text-brand-violetDark flex items-center justify-center font-bold text-2xl font-display">◈</div>
+                <span class="font-display font-bold text-2xl tracking-tight">signal<span class="text-brand-green">.</span></span>
+            </div>
+            <div class="mt-8">
+                <p class="text-[10px] font-bold text-[#a9a0dc] tracking-wider uppercase mb-3">Espace de travail</p>
+                <nav class="space-y-1.5" id="nav-container">
+                    <button data-target="dashboard" class="nav-item w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-semibold transition-all hover:bg-white/10 text-[#d8d0ff] active">
+                        <i data-lucide="layout-dashboard" class="w-4 h-4"></i>
+                        <span>Vue d'ensemble</span>
+                    </button>
+                    <button data-target="topics" class="nav-item w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-semibold transition-all hover:bg-white/10 text-[#d8d0ff]">
+                        <i data-lucide="sliders" class="w-4 h-4"></i>
+                        <span>Choix des sujets</span>
+                        <span id="badge-selected-count" class="ml-auto bg-brand-green text-brand-violetDark text-xs font-bold px-2 py-0.5 rounded-full">12</span>
+                    </button>
+                    <button data-target="news" class="nav-item w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-semibold transition-all hover:bg-white/10 text-[#d8d0ff]">
+                        <i data-lucide="newspaper" class="w-4 h-4"></i>
+                        <span>Actualités</span>
+                    </button>
+                    <button data-target="publish" class="nav-item w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-semibold transition-all hover:bg-white/10 text-[#d8d0ff]">
+                        <i data-lucide="share-2" class="w-4 h-4"></i>
+                        <span>Contenu & diffusion</span>
+                    </button>
+                </nav>
+                <!-- Lecture Level Toggle -->
+                <div class="mt-6 border-t border-white/10 pt-4">
+                    <p class="text-[10px] font-bold text-[#a9a0dc] tracking-wider uppercase mb-2">Niveau de lecture</p>
+                    <div class="grid grid-cols-2 gap-1 bg-[#1a0b4d] p-1 rounded-lg">
+                        <button id="btn-level-high" class="text-[10px] font-bold py-1.5 text-center rounded-lg transition-all bg-brand-violet text-white">
+                            High Level
+                        </button>
+                        <button id="btn-level-low" class="text-[10px] font-bold py-1.5 text-center rounded-lg transition-all text-[#a9a0dc] hover:text-white">
+                            Low Level
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="mt-auto p-6 border-t border-white/10 text-xs text-[#bdb6e3] space-y-1">
+            <span class="font-bold text-white tracking-wider">CTO ADVISORY</span>
+            <p class="opacity-80">Portail de veille automatisé</p>
+            <p class="opacity-60">Version prototype • v2.0</p>
+        </div>
+    </aside>
+
+    <!-- Overlay for mobile sidebar -->
+    <div id="sidebar-overlay" class="hidden fixed inset-0 bg-slate-900/50 backdrop-blur-sm z-15 md:hidden"></div>
+
+    <!-- Main Workspace Container -->
+    <main id="main-content" class="flex-1 flex flex-col min-w-0 overflow-y-auto h-full px-4 py-6 md:px-14 md:py-8 lg:max-w-[1550px] mx-auto w-full">
+        
+        <!-- Header status info bar -->
+        <div class="flex items-center justify-between mb-8">
+            <span class="text-xs text-brand-muted" id="topbar-date">Chargement de la date...</span>
+            <div class="flex items-center gap-1.5 px-3 py-1 bg-brand-mint text-[#087c4b] rounded-full text-xs font-bold">
+                <span class="w-1.5 h-1.5 rounded-full bg-[#08a85f] animate-pulse"></span>
+                <span>SYSTEME OPÉRATIONNEL</span>
+            </div>
+        </div>
+
+        <!-- PAGE Content sections -->
+
+        <!-- 1. DASHBOARD PAGE -->
+        <section id="page-dashboard" class="page-section active space-y-6">
+            <div>
+                <p class="text-xs font-bold uppercase tracking-wider text-brand-violet mb-1.5">Portail de veille · CTO Advisory</p>
+                <h1 class="font-display font-bold text-4xl leading-none text-brand-ink mb-3 lg:text-5xl">Le signal, au bon moment.</h1>
+                <p class="text-brand-muted text-md max-w-2xl leading-relaxed">Une lecture claire des tendances technologiques qui peuvent faire bouger les offres, les métiers et les conversations de demain.</p>
+            </div>
+
+            <!-- Stats/Metrics Cards -->
+            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+                <div class="bg-brand-violetDark text-white p-5 rounded-2xl flex flex-col justify-between shadow-sm min-h-[120px]">
+                    <span class="text-xs opacity-80 font-semibold uppercase tracking-wider">Sujets surveillés</span>
+                    <span class="font-display font-bold text-3xl mt-2 select-none" id="stat-topics-count">12</span>
+                    <span class="text-[11px] opacity-75 mt-1 select-none" id="stat-topics-delta">+3 ce mois</span>
+                </div>
+                <div class="bg-brand-violetSoft text-brand-ink p-5 rounded-2xl flex flex-col justify-between shadow-sm border border-brand-line min-h-[120px]">
+                    <span class="text-xs text-brand-muted font-semibold uppercase tracking-wider">Signaux cette semaine</span>
+                    <span class="font-display font-bold text-3xl mt-2 text-brand-violet select-none">48</span>
+                    <span class="text-[11px] text-brand-muted mt-1 select-none">+18% vs sem. dernière</span>
+                </div>
+                <div class="bg-brand-green text-brand-violetDark p-5 rounded-2xl flex flex-col justify-between shadow-sm min-h-[120px]">
+                    <span class="text-xs opacity-85 font-semibold uppercase tracking-wider">Sources actives</span>
+                    <span class="font-display font-bold text-3xl mt-2 select-none">26</span>
+                    <span class="text-[11px] opacity-75 mt-1 select-none">Toutes synchronisées</span>
+                </div>
+                <div class="bg-white text-brand-ink p-5 rounded-2xl flex flex-col justify-between border border-brand-line shadow-sm min-h-[120px]">
+                    <span class="text-xs text-brand-muted font-semibold uppercase tracking-wider">Prochaine diffusion</span>
+                    <span class="font-display font-bold text-3xl mt-2 text-brand-violet select-none">Jeudi</span>
+                    <span class="text-[11px] text-brand-muted mt-1 select-none">Newsletter hebdomadaire</span>
+                </div>
+            </div>
+
+            <!-- News Feed & Workflow Container -->
+            <div class="flex flex-col lg:flex-row gap-6 mt-6">
+                <!-- Left: Recent Signals Feed (3 Items) -->
+                <div class="flex-1 space-y-4">
+                    <div class="flex items-baseline justify-between mb-2">
+                        <h2 class="font-display font-bold text-xl text-brand-ink">Les derniers signaux</h2>
+                        <span class="text-xs text-brand-muted">Mis à jour aujourd'hui à 09:42</span>
+                    </div>
+                    <div class="bg-white border border-brand-line rounded-2xl p-6 shadow-sm divide-y divide-slate-100" id="recent-signals-container">
+                        <!-- Populated via Javascript -->
+                    </div>
+                </div>
+
+                <!-- Right: Workflow & Insights Widgets -->
+                <div class="w-full lg:w-[380px] space-y-4">
+                    <!-- Workflow Indicator Card -->
+                    <div class="bg-white border border-brand-line rounded-2xl p-6 shadow-sm space-y-4">
+                        <h3 class="font-display font-semibold text-lg text-brand-ink">Votre parcours de veille</h3>
+                        
+                        <!-- Timeline Horizontal Flow container -->
+                        <div class="flex items-center justify-between relative mt-4 px-2">
+                            <div class="absolute top-[18px] left-[10%] right-[10%] h-[2px] bg-brand-green z-0"></div>
+                            
+                            <div class="flex flex-col items-center z-10">
+                                <div class="w-9 h-9 rounded-full bg-brand-green text-brand-violetDark flex items-center justify-center font-bold text-xs shadow-sm">1</div>
+                                <span class="text-[11px] font-bold text-brand-ink mt-2">Sélection</span>
+                            </div>
+                            <div class="flex flex-col items-center z-10">
+                                <div class="w-9 h-9 rounded-full bg-brand-green text-brand-violetDark flex items-center justify-center font-bold text-xs shadow-sm">2</div>
+                                <span class="text-[11px] font-bold text-brand-ink mt-2">Collecte</span>
+                            </div>
+                            <div class="flex flex-col items-center z-10">
+                                <div class="w-9 h-9 rounded-full bg-brand-green text-brand-violetDark flex items-center justify-center font-bold text-xs shadow-sm">3</div>
+                                <span class="text-[11px] font-bold text-brand-ink mt-2">Synthèse</span>
+                            </div>
+                            <div class="flex flex-col items-center z-10">
+                                <div class="w-9 h-9 rounded-full bg-brand-violet text-white flex items-center justify-center font-bold text-xs shadow-sm">4</div>
+                                <span class="text-[11px] font-bold text-brand-ink mt-2">Diffusion</span>
+                            </div>
+                        </div>
+
+                        <div class="pt-2 border-t border-slate-100 text-xs text-brand-muted leading-relaxed">
+                            Votre prochaine newsletter est presque prête. <span class="font-bold text-brand-violet" id="selected-topics-msg">12 sujets</span> ont été retenus pour votre sélection.
+                        </div>
+                    </div>
+
+                    <!-- Highlight Recommendation Box -->
+                    <div class="bg-white border border-brand-line rounded-2xl p-6 shadow-sm border-l-4 border-l-brand-green relative overflow-hidden">
+                        <span class="inline-block px-2.5 py-0.5 bg-brand-mint text-[#087c4b] text-[10px] font-bold rounded-full uppercase tracking-wider mb-2">Recommandation</span>
+                        <h3 class="font-display font-semibold text-md text-brand-ink mb-1">Explorer la souveraineté</h3>
+                        <p class="text-xs text-brand-muted leading-relaxed">Un sujet en forte progression dans vos sources ce mois-ci. Les directives européennes stimulent la demande.</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- 2. CHOIX DES SUJETS PAGE -->
+        <section id="page-topics" class="page-section space-y-6 hidden">
+            <div>
+                <p class="text-xs font-bold uppercase tracking-wider text-brand-violet mb-1.5">Portail de veille · CTO Advisory</p>
+                <h1 class="font-display font-bold text-4xl leading-none text-brand-ink mb-3 lg:text-5xl">Choisir vos angles.</h1>
+                <p class="text-brand-muted text-md max-w-2xl leading-relaxed">Composez votre veille selon les conversations qui comptent pour vos équipes et vos clients.</p>
+            </div>
+
+            <div class="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
+                <!-- Left: 12 Flat Topics Selection list (7 cols) -->
+                <div class="lg:col-span-7 space-y-4">
+                    <div class="flex items-baseline justify-between select-none">
+                        <h2 class="font-display font-bold text-lg text-brand-ink">Thématiques de veille disponibles</h2>
+                        <span class="text-xs text-brand-muted">12 thématiques d'innovation</span>
+                    </div>
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 bg-white border border-brand-line rounded-2xl p-5 shadow-sm" id="topics-selection-grid">
+                        <!-- Populated dynamically via Javascript with 12 flat subjects -->
+                    </div>
+                </div>
+
+                <!-- Right: Preference priority ranking list (5 cols) -->
+                <div class="lg:col-span-5 bg-white border border-brand-line rounded-2xl p-5 shadow-sm space-y-4">
+                    <div>
+                        <h3 class="font-display font-bold text-lg text-brand-ink flex items-center gap-1.5">
+                            <i data-lucide="arrow-down-up" class="w-4 h-4 text-brand-violet"></i>
+                            <span>Ordre de préférence</span>
+                        </h3>
+                        <p class="text-xs text-slate-500 leading-relaxed mt-1">
+                            Ajustez la priorité de vos thématiques suivies à l'aide des flèches. Cet ordre influencera dynamiquement le volume d'actualités collectées par le robot de veille.
+                        </p>
+                    </div>
+                    <div class="space-y-2 max-h-[360px] overflow-y-auto pr-1" id="preferences-ranking-list">
+                        <!-- Populated dynamically via Javascript based on checked topics -->
+                    </div>
+                </div>
+            </div>
+
+            <!-- Summary panel bottom -->
+            <div class="bg-white border border-brand-line rounded-2xl p-6 shadow-sm flex items-center justify-between gap-6 flex-col sm:flex-row border-l-4 border-l-brand-violet">
+                <div>
+                    <span class="inline-block px-2.5 py-0.5 bg-brand-mint text-[#087c4b] text-[10px] font-bold rounded-full uppercase tracking-wider mb-2.5">Configuration Active</span>
+                    <h3 class="font-display font-semibold text-lg text-brand-ink">Votre sélection personnalisée</h3>
+                    <p class="text-xs text-brand-muted leading-relaxed mt-0.5">Ces sujets configurés alimenteront dynamiquement votre flux d'actualités et votre synthèse LinkedIn.</p>
+                </div>
+                <div class="flex items-center gap-4">
+                    <div class="text-right">
+                        <div class="font-display font-bold text-[44px] text-brand-violet leading-none select-none" id="selected-total-count">0</div>
+                        <span class="text-[10px] uppercase font-bold text-brand-muted tracking-wider">sujets suivis</span>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- 3. ACTUALITES PAGE -->
+        <section id="page-news" class="page-section space-y-6 hidden">
+            <div>
+                <p class="text-xs font-bold uppercase tracking-wider text-brand-violet mb-1.5">Portail de veille · CTO Advisory</p>
+                <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+                    <h1 class="font-display font-bold text-4xl leading-none text-brand-ink lg:text-5xl">Fil d'actualité.</h1>
+                    <!-- Visual indicator for Reading Level -->
+                    <div class="flex items-center gap-2 text-xs bg-brand-violetSoft px-3 py-1.5 rounded-full border border-brand-line self-start sm:self-auto">
+                        <span class="text-brand-muted">Mode actif :</span>
+                        <span id="news-level-badge" class="font-bold text-brand-violet">High Level (Macro)</span>
+                    </div>
+                </div>
+                <p class="text-brand-muted text-md max-w-2xl leading-relaxed mt-2">Retrouvez vos signaux faibles présentés au format LinkedIn Scroll à lire et à partager.</p>
+            </div>
+
+            <!-- Filter Controls Row -->
+            <div class="bg-white border border-brand-line rounded-xl p-4 shadow-sm grid grid-cols-1 sm:grid-cols-2 md:grid-cols-12 gap-3 items-center">
+                <!-- Dropdown Topic Filter -->
+                <div class="md:col-span-4">
+                    <label class="block text-xs font-bold text-brand-muted tracking-wider uppercase mb-1">Thématique de veille</label>
+                    <select id="filter-topic" class="w-full bg-slate-50 border border-slate-200 hover:border-brand-line rounded-lg px-3 py-2 text-xs font-semibold focus:outline-none focus:ring-1 focus:ring-brand-violet transition-all text-slate-700">
+                        <!-- Populated dynamically via JS -->
+                    </select>
+                </div>
+                <!-- Dropdown Period -->
+                <div class="md:col-span-3">
+                    <label class="block text-xs font-bold text-brand-muted tracking-wider uppercase mb-1">Période</label>
+                    <select id="filter-period" class="w-full bg-slate-50 border border-slate-200 hover:border-brand-line rounded-lg px-3 py-2 text-xs font-semibold focus:outline-none focus:ring-1 focus:ring-brand-violet transition-all text-slate-700">
+                        <option value="Tout">Toutes les périodes</option>
+                        <option value="Cette semaine">Cette semaine</option>
+                        <option value="Ce mois-ci">Ce mois-ci</option>
+                    </select>
+                </div>
+                <!-- Dropdown Sort -->
+                <div class="md:col-span-5">
+                    <label class="block text-xs font-bold text-brand-muted tracking-wider uppercase mb-1">Rechercher par mot-clé</label>
+                    <div class="relative">
+                        <input id="search-input" type="text" placeholder="Rechercher des hashtags ou expressions..." class="w-full bg-slate-50 border border-slate-200 hover:border-brand-line rounded-lg pl-8 pr-3 py-2 text-xs focus:outline-none focus:ring-1 focus:ring-brand-violet transition-all">
+                        <i data-lucide="search" class="w-3.5 h-3.5 text-slate-400 absolute left-2.5 top-2.5"></i>
+                    </div>
+                </div>
+            </div>
+
+            <!-- News Feed Content (LinkedIn Style Feed) -->
+            <div id="articles-feed-container" class="space-y-6 max-w-2xl mx-auto py-2">
+                <!-- Javascript will render scrollable post elements here -->
+            </div>
+        </section>
+
+        <!-- 4. CONTENU & DIFFUSION PAGE -->
+        <section id="page-publish" class="page-section space-y-6 hidden">
+            <div>
+                <p class="text-xs font-bold uppercase tracking-wider text-brand-violet mb-1.5">Portail de veille · CTO Advisory</p>
+                <h1 class="font-display font-bold text-4xl leading-none text-brand-ink mb-3 lg:text-5xl">Donner une voix au signal.</h1>
+                <p class="text-brand-muted text-md max-w-2xl leading-relaxed">Transformez une sélection d’actualités de veille en contenu de publication directement exploitable par vos équipes ou vos réseaux.</p>
+            </div>
+
+            <!-- Interactive Builder Panels -->
+            <div class="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
+                
+                <!-- Left side: Configuration Builder Form (Col 5) -->
+                <div class="lg:col-span-5 bg-white border border-brand-line rounded-2xl p-6 shadow-sm space-y-5">
+                    <h3 class="font-display font-semibold text-lg text-brand-ink border-b border-slate-100 pb-3">Nouvelle publication</h3>
+                    
+                    <div class="space-y-4">
+                        <!-- Template Format -->
+                        <div>
+                            <label class="block text-xs font-bold text-brand-muted tracking-wider uppercase mb-1.5">Format de diffusion</label>
+                            <select id="publish-format" class="w-full bg-slate-50 border border-slate-200 hover:border-brand-line rounded-lg px-3 py-2 text-xs font-semibold focus:outline-none focus:ring-1 focus:ring-brand-violet transition-all text-slate-700">
+                                <option value="linkedin">Post LinkedIn (Personal Branding)</option>
+                                <option value="newsletter">Newsletter Hebdomadaire</option>
+                                <option value="brief">Note de Synthèse (Conseil)</option>
+                            </select>
+                        </div>
+
+                        <!-- Communication Angle -->
+                        <div>
+                            <label class="block text-xs font-bold text-brand-muted tracking-wider uppercase mb-1.5">Angle éditorial</label>
+                            <select id="publish-angle" class="w-full bg-slate-50 border border-slate-200 hover:border-brand-line rounded-lg px-3 py-2 text-xs font-semibold focus:outline-none focus:ring-1 focus:ring-brand-violet transition-all text-slate-700">
+                                <option value="trends">Les tendances à retenir</option>
+                                <option value="cto_view">Point de vue CTO Advisory</option>
+                                <option value="watch">À surveiller en priorité</option>
+                            </select>
+                        </div>
+
+                        <!-- News Source Picker -->
+                        <div>
+                            <label class="block text-xs font-bold text-brand-muted tracking-wider uppercase mb-1.5">Signaux technologiques inclus</label>
+                            <div class="space-y-2 max-h-[140px] overflow-y-auto border border-slate-100 rounded-lg p-3 bg-slate-50/50" id="publish-signals-picker">
+                                <!-- Javascript will list all articles dynamically with multiselect check indicators -->
+                            </div>
+                        </div>
+
+                        <!-- Editing Guideline -->
+                        <div>
+                            <label class="block text-xs font-bold text-brand-muted tracking-wider uppercase mb-1.5">Consigne éditoriale (Prompt LLM)</label>
+                            <textarea id="publish-prompt" rows="3" class="w-full bg-slate-50 border border-slate-200 hover:border-brand-line rounded-lg px-3 py-2 text-xs focus:outline-none focus:ring-1 focus:ring-brand-violet transition-all text-slate-700 leading-relaxed">Rédiger une synthèse claire et engageante pour un public de décideurs.</textarea>
+                        </div>
+                    </div>
+
+                    <button id="btn-generate-draft" class="w-full bg-brand-violet hover:bg-[#3d19b8] active:bg-brand-violetDark text-white py-3 rounded-xl text-xs font-bold tracking-wider uppercase shadow-md flex items-center justify-center gap-2 mt-4 hover:shadow-lg transition-all">
+                        <i data-lucide="sparkles" class="w-4 h-4 text-brand-green"></i>
+                        <span>Générer le brouillon</span>
+                    </button>
+                </div>
+
+                <!-- Right side: Preview Outputs (Col 7) -->
+                <div class="lg:col-span-7 bg-white border border-brand-line rounded-2xl p-6 shadow-sm space-y-4">
+                    <div class="flex items-center justify-between border-b border-slate-100 pb-3">
+                        <div class="flex items-center gap-2">
+                            <span class="inline-block px-2.5 py-0.5 bg-brand-mint text-[#087c4b] text-[10px] font-bold rounded-full uppercase tracking-wider">Aperçu du brouillon</span>
+                        </div>
+                        <button id="btn-copy-draft" class="text-xs font-bold text-brand-violet hover:text-brand-violetDark flex items-center gap-1">
+                            <i data-lucide="copy" class="w-3.5 h-3.5"></i>
+                            <span>Copier le post</span>
+                        </button>
+                    </div>
+
+                    <!-- Inner Card Presentation -->
+                    <div class="space-y-4 min-h-[300px] flex flex-col">
+                        <h3 id="draft-prev-title" class="font-display font-semibold text-lg text-brand-ink">Les agents autonomes arrivent</h3>
+                        
+                        <div id="draft-prev-body" class="text-xs text-[#262333] leading-relaxed max-w-full space-y-3 flex-1 overflow-x-hidden select-text text-justify whitespace-pre-line">
+                            Les agents autonomes passent progressivement du pilote à la production. Leur valeur ne se limite plus à l'expérimentation : ils structurent des workflows, accélèrent l'analyse et redessinent les équipes opérationnelles.
+
+                            Pour les CTO, le sujet est désormais moins celui de la technologie que celui de l'orchestration, de la gouvernance et de la confiance.
+                        </div>
+
+                        <div class="pt-4 border-t border-slate-100 flex items-center justify-between text-[11px] text-brand-muted select-none">
+                            <span id="draft-prev-badge">Brouillon • Copie de Veille</span>
+                            <span id="draft-prev-charcount">482 caractères</span>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+        </section>
+
+        <!-- Clean Copyright Footer -->
+        <footer class="mt-auto pt-10 pb-4 select-none">
+            <p class="text-center text-slate-400 text-[10px]">
+                Wavestone CTO Advisory • Veille Technologique IA Serverless • Version Prototype Web v2.1.0
+            </p>
+        </footer>
+
+    </main>
+
+    <!-- Global Floating Toast Notification Container -->
+    <div id="toast-wrapper" class="fixed bottom-6 right-6 z-50 flex flex-col gap-2 pointer-events-none"></div>
+
+    <!-- Scripts -->
+    <script src="app.js"></script>
+</body>
+</html>
