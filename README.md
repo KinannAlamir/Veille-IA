@@ -18,30 +18,7 @@ Built with responsive HTML5, modern Tailwind CSS, and vanilla ES6 JavaScript to 
 
 ---
 
-## 🚀 How to Run the Application
-
-You can open the portal instantly using any of the options below:
-
-### Option 1 : Direct Launch (Offline)
-
-1. Navigate to the root directory folder.
-2. Double-click the [index.html](index.html) file to open and run it directly in your favorite web browser (Chrome, Edge, Safari, Firefox). No installation or network connection is required.
-
----
-
-### Option 2 : Local Server Launch (Recommended)
-
-Running a local HTTP server is recommended to enable developer logs or external testing:
-
-```bash
-# Using Python
-python -m http.server 8000
-```
-Then, point your browser to : [http://localhost:8000](http://localhost:8000)
-
----
-
-## 📂 Project Structure
+##  Project Structure
 
 ```
 WatchPortal/
