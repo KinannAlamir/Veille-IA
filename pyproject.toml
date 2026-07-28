@@ -1,0 +1,13 @@
+[project]
+name = "veilleia"
+version = "0.1.0"
+description = "Add your description here"
+readme = "README.md"
+requires-python = ">=3.14"
+dependencies = [
+    "beautifulsoup4>=4.15.0",
+    "boto3>=1.43.56",
+    "boto3-stubs[dynamodb]>=1.43.57",
+    "feedparser>=6.0.12",
+    "requests>=2.34.2",
+]

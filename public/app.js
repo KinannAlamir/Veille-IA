@@ -19,188 +19,26 @@ const TOPICS_LIST = [
 ];
 
 // 2. LinkedIn Feed News Database (Supporting dual-state High & Low reading levels)
-const NEWSByLevel = [
-    {
-        id: "news_1",
-        tag: "IA",
-        topicId: "next_gen_support",
-        title: "Les agents autonomes passent du pilote à la production",
-        source: "MIT Technology Review",
-        date: "Il y a 2 h",
-        score: "94",
-        period: "Cette semaine",
-        comments: "14",
-        shares: "8",
-        highLevel: {
-            linkedinHook: "🤖 **Les agents autonomes franchissent un cap stratégique historique !** Fini les simples prototypes isolés, la tendance en conseil est à l'intégration d'architectures d'agents multi-rôles pour piloter les fonctions de support en entreprise.\n\nPour les décideurs, la valeur ajoutée se traduit par un gain moyen de **6 heures par semaine** sur les tâches administratives des POs et une réduction majeure du fardeau cognitif global des collaborateurs. Une transition indispensable vers l'entreprise augmentée.\n\nQu'en pensez-vous ? #IAgénérative #Productivité #Wavestone #ConseilIT",
-            facts: [
-                "Diminution drastique des goulots d'étranglement administratifs sur les plateformes de ticketing.",
-                "Orchestration transversale transparente des processus d'équipe sans micro-management.",
-                "Réinstallation de l'humain sur la relation d'aide et les décisions complexes."
-            ],
-            summary: "L'automatisation du support client passe un cap grâce à des agents supervisés capables d'analyser le sentiment et d'agir sur le SI."
-        },
-        lowLevel: {
-            linkedinHook: "⚙️ **[Deep Dive Technique] Comment bâtir une architecture multi-agents résiliente en production en 2026 ?**\n\nLe passage à l'échelle repose sur des routeurs d'invites asynchrones orchestrés via **DynamoDB Streams** et asscociés à des brokers de messages. La réduction des temps de traitement d'API et la maîtrise des metrics de consommation de jetons (Token quotas) s'imposent comme les véritables priorités de l'ingénieur.\n\nUn pattern clé à tester d'urgence : l'intégration via des files EventBridge.\n\n#SoftwareArchitecture #Serverless #Bedrock #DevOps #TechAdvisory",
-            facts: [
-                "Appels d'API légers via Gemini 3.5 Flash s'insérant dans des cloud-webhooks sans surcharge de ressources.",
-                "Utilisation de frameworks d'orchestration autonomes gérant la mémoire de session par clé unique.",
-                "Garde-fous d'anonymisation locale gérant les PII avant transmission au LLM d'affaires."
-            ],
-            summary: "Implémentation d'un pipeline serverless via Amazon EventBridge, orchestrant des fonctions Lambda asynchrones pour le routage de prompts."
+let NEWSByLevel = []; // Sera rempli par le fetch local
+
+// Fonction asynchrone pour charger les données mockées depuis data.json
+async function loadMockData() {
+    try {
+        const response = await fetch('./data.json');
+        if (!response.ok) {
+            throw new Error(`HTTP error! status: ${response.status}`);
         }
-    },
-    {
-        id: "news_2",
-        tag: "CLOUD",
-        topicId: "hyperscalers",
-        title: "AWS dévoile une nouvelle couche d'orchestration pour Bedrock",
-        source: "AWS News",
-        date: "Hier",
-        score: "89",
-        period: "Cette semaine",
-        comments: "9",
-        shares: "4",
-        highLevel: {
-            linkedinHook: "☁️ **AWS structure l'ère industrielle de l'IA Générative !** En lançant sa nouvelle couche d'orchestration pour Amazon Bedrock, le géant du Cloud résout le défi numéro un des DSI : la **gouvernance**. \n\nLes entreprises peuvent enfin faire passer leurs démonstrateurs (PoC) en production avec un cadre de supervision et de souveraineté optimal. C'est l'assurance d'une conformité totale sans couper l'élan d'innovation commerciale.\n\nUn must-know pour nos directions générales IT et nos comités d'architecture.\n\n#CloudSouverain #AWSBedrock #Gouvernance #AIAtScale #Wavestone",
-            facts: [
-                "Amélioration des indicateurs de conformité réglementaire (RGPD/Act) par limitation des risques de fuite.",
-                "Rapports d'audits analytiques centralisés du coût consolidé de l'IA en temps réel.",
-                "Barrières et politiques de sécurité modulaires (Guardrails) configurables en quelques clics."
-            ],
-            summary: "Sécurisation et scalabilité des modèles LLM commerciaux grâce à un contrôle centralisé du transit d'informations sensibles."
-        },
-        lowLevel: {
-            linkedinHook: "🛠️ **[Architecture Cloud] Bedrock Orchestration : gestion de l'état applicatif et des Guardrails en temps réel.**\n\nL'implémentation de la nouvelle couche d'AWS résout la complexité de l'état asynchrone des appels. Grâce à un couplage fin avec **DynamoDB**, les architectures gèrent les workflows complexes en moins de 100ms de latence de transit tout en appliquant les expressions de filtrage PII localement.\n\nConsultez les schémas d'urbanisation correspondants. \n\n#AWSArchitecture #Microservices #DynamoDB #SecurityEngineering",
-            facts: [
-                "Intégration d'un middleware asynchrone de sécurité qui filtre les PII sans re-dimensionnement de VM.",
-                "Optimisation du cycle de vie des sessions utilisateurs via cache Redis et réduction de 30% des instances SQL.",
-                "Utilisation des files EventBridge SQS pour garantir l'ingestion d'événements sans perte en pic de charge."
-            ],
-            summary: "Intégration technique d'AWS Bedrock Guardrails couplée aux tables DynamoDB streamées pour le contrôle d'anonymisation."
-        }
-    },
-    {
-        id: "news_3",
-        tag: "SOUVERAINETÉ",
-        topicId: "ea",
-        title: "Les modèles ouverts gagnent du terrain dans les environnements sensibles",
-        source: "Le Monde Informatique",
-        date: "Hier",
-        score: "86",
-        period: "Cette semaine",
-        comments: "11",
-        shares: "5",
-        highLevel: {
-            linkedinHook: "🛡️ **Conformité & Maîtrise : L'irrésistible montée des modèles ouverts en environnements sensibles !**\n\nPour 32% des DSI interrogeantes, le risque de fuite de données d'affaires sur des clouds tiers constitue le premier frein à l'adoption de l'IA. La parade ? Déployer des modèles ouverts hautement optimisés au sein même du cloud privé ou souverain de l'entreprise.\n\nY voyez-vous un levier d'accélération durable ou une contrainte opérationnelle ? Discutons-en !\n\n#SouverainetéNumérique #RGPD #StrategicIT #DSIInsights #Wavestone",
-            facts: [
-                "Contrôle absolu et auditabilité totale du code source et de l'ingestion de données.",
-                "Réduction du fardeau d'évaluation d'impact RGPD auprès de la CNIL.",
-                "Gain d'indépendance commerciale vis-à-vis des hausses de prix de licences d'acteurs tiers."
-            ],
-            summary: "Les modèles ouverts hébergés localement permettent d'allier conformité maximale et maîtrise budgétaire pérenne."
-        },
-        lowLevel: {
-            linkedinHook: "🐳 **[DevOps / Infrastructure] Déploiement et auto-hébergement de modèles LLM ouverts.**\n\nL'optimisation des architectures d'inférence en local passe par un dimensionnement optimal des infrastructures matérielles (VRAM). À l'aide de conteneurs standardisés orchestrés sous **Kubernetes**, nous pouvons moduler les requêtes pour maximiser le taux d'utilisation des processeurs graphiques et réduire l'empreinte SCI globale.\n\n#Kubernetes #EcoConception #OpenSourceCode #GPUInfrastructure",
-            facts: [
-                "Quantification fine des poids de modèles (4-bit/8-bit precision) réduisant l'empreinte mémoire de 60%.",
-                "Gestion du scaling dynamique via KEDA basé sur la file d'attente réseau des requêtes d'inférence.",
-                "Middleware d'audit et pipeline d'anonymisation branché en local sur l'image Docker applicative."
-            ],
-            summary: "Urbanisation d'infrastructure conteneurisée gérant le load balancing de requêtes d'inférence sur clusters locaux."
-        }
-    },
-    {
-        id: "news_4",
-        tag: "FUTURE OF WORK",
-        topicId: "workplace",
-        title: "Microsoft présente ses nouveaux copilotes métiers",
-        source: "Microsoft Blog",
-        date: "12 juin",
-        score: "81",
-        period: "Ce mois-ci",
-        comments: "5",
-        shares: "1",
-        highLevel: {
-            linkedinHook: "💼 **Travail Hybride : L'adoption des copilotes métiers s'installe au quotidien !**\n\nL'intégration d'assistants intelligents directement dans les suites bureautiques permet enfin de s'attaquer au fardeau administratif récurrent. En résumant les sprints complexes ou en rédigeant les posts d'aide au personal branding, cette nouvelle routine de veille redonne de la disponibilité aux consultants pour s'investir sur le client.\n\nQuelle est l'adoption de ces routines chez vos équipes ? \n\n#Collaboratif #M365 #CoctoAdvisory #RoutineHebdomadaire #Innovation",
-            facts: [
-                "Gain de temps substantiel sur la rédaction de synthèses de rapports complexes.",
-                "Fluidification de l'onboarding de nouveaux consultants sur des dossiers techniques.",
-                "Réduction de 15% des anomalies d'alignement projet via le résumé automatique de réunions."
-            ],
-            summary: "Les outils collaboratifs intègrent l'IA pour automatiser la synthèse administrative et libérer du potentiel d'analyse."
-        },
-        lowLevel: {
-            linkedinHook: "💻 **[Workplace Integration] Interfaçage d'assistant intelligent via Azure OpenAI et Teams Webhooks.**\n\nIntégrer des services de copilotes requiert un interfaçage optimal pour garantir l'anonymisation des flux. À l'aide d'**Azure API Management** et de configurations asynchrones, nous capturons les métadonnées de discussion de manière standardisée tout en assurant l'audit légal exigé par les DSI.\n\n#Azure #TeamsIntegration #APIManagement #Cybersecurity",
-            facts: [
-                "Configuration de routeurs de requêtes via API de proxification Azure limitant l'accès direct aux serveurs.",
-                "Application de jetons d'authentification temporaires et d'identités gérées pour l'accès aux logs.",
-                "Formatage de flux asynchrones via API proxies pour décharger le réseau local."
-            ],
-            summary: "Développement d'un pipeline d'API sécurisé acheminant l'information des suites collaboratives vers un routeur d'inférence local."
-        }
-    },
-    {
-        id: "news_5",
-        tag: "FINOPS",
-        topicId: "infra_arch",
-        title: "Optimisation des coûts AWS Lambda : Stratégies avancées",
-        source: "AWS Tech Blog",
-        date: "Il y a 3 jours",
-        score: "92",
-        period: "Cette semaine",
-        comments: "19",
-        shares: "12",
-        highLevel: {
-            linkedinHook: "💰 **[FinOps Strategy] Réduire sa facture AWS Lambda de 42% sans dégradation applicative ? C'est possible.**\n\nLa sous-optimisation budgétaire est le principal fléau des initiatives Cloud modernes. Nos dernières études de cadrage révèlent que 35% des investissements Serverless sont gaspillés par une mauvaise configuration des allocations de mémoire.\n\nUn sujet hautement prioritaire pour aligner performance et sobriété économique.\n\n#FinOps #CloudBudget #Serverless #CostOptimization #CTOMindset",
-            facts: [
-                "Le provisionnement prédictif (Provisioned Concurrency dynamique) supprime les pics de latence des démarrages à froid.",
-                "Gain budgétaire immédiat transposable de manière transverse sur l'ensemble de l'urbanisation Cloud.",
-                "Utilisation de modèles d'analyse automatiques pour proposer des corrections de ressources."
-            ],
-            summary: "L'ajustement dynamique de la puissance allouée aux architectures serverless permet de concilier réactivité technique et efficience budgétaire."
-        },
-        lowLevel: {
-            linkedinHook: "📉 **[FinOps Deep Dive] Ajustement prédictif de provisionnement de Concurrence sur AWS Lambda.**\n\nConfigurer le **Provisioned Concurrency** dynamique nécessite de coupler l'analyse des logs CloudWatch avec des algorithmes d'ajustement de charge applicative. Ce pattern d'ingénierie limite les cold starts de 98% en calquant l'activation de mémoire sur la saisonnalité précise des appels d'API.\n\n#AWSLambda #PerformanceEngineering #CloudWatchMetric #ServerlessCompute",
-            facts: [
-                "Analyse des logs JSON CloudWatch par parsing rapide permettant des alertes automatisées de dépassement de quota.",
-                "Configuration de scripts Terraform incluant le scaling asynchrone des fonctions AWS Lambda.",
-                "Réduction de 42% de la facture brute serverless en éliminant les instances réservées inactives."
-            ],
-            summary: "Création d'un pipeline d'Infrastructure-as-Code Terraform configurant l'Auto-scaling dynamique des ressources cloud."
-        }
-    },
-    {
-        id: "news_6",
-        tag: "ECO-CONCEPTION",
-        topicId: "smartflow",
-        title: "Eco-conception logicielle : Mesurer le coût carbone de vos APIS en temps réel",
-        source: "Tech Eco Journal",
-        date: "Il y a 5 jours",
-        score: "88",
-        period: "Cette semaine",
-        comments: "8",
-        shares: "3",
-        highLevel: {
-            linkedinHook: "🌱 **L'éco-conception logicielle passe de la théorie à l'implémentation opérationnelle !** \n\nLes entreprises adoptent désormais des middlewares capables de mesurer en temps réel l'intensité carbone de l'énergie consommée par leurs serveurs informatiques. En décalant intelligemment des tâches asynchrones, nous parvenons à réduire l'empreinte environnementale de **65%**, à budget constant.\n\nUne démarche pragmatique vers un numérique responsable.\n\n#GreenIT #NumériqueResponsable #Sustainability #EcoConception #Wavestone",
-            facts: [
-                "Généralisation de l'évaluation standardisée 'Software Carbon Intensity' chez les donneurs d'ordre.",
-                "Valorisation éco-responsable des architectures s'inscrivant dans la notation RSE globale du cabinet.",
-                "Alignement de l'efficacité carbone avec de substantielles économies de coût d'alimentation cloud."
-            ],
-            summary: "La synchronisation dynamique des traitements informatiques lourds sur les heures d'énergie propre réduit l'impact écologique des SI."
-        },
-        lowLevel: {
-            linkedinHook: "🐍 **[Green Architecture] Implémentation d'un middleware d'interrogation horaire d'intensité carbone.**\n\nL'algorithme de routage interroge l'API asynchrone d'**Electricity Map** au déclenchement d'un job. Si l'intensité carbone de la grille réseau locale dépasse le seuil paramétré (gCO2eq/kWh), la file de message met en attente les processus non critiques pour les exécuter durant la période de plus forte charge verte.\n\n#GreenSoftware #APIsDevelopment #ElectricityMap #SoftwareCarbonIntensity #NoSQL",
-            facts: [
-                "Création d'un middleware d'interception asynchrone branché sur les requêtes d'ingestion lourdes.",
-                "Requêtage asynchrone sans impact sur le temps de réponse utilisateur final par stockage temporaire en cache.",
-                "Diminution de 65% de l'empreinte carbone calculée par rapport à une exécution synchrone uniforme."
-            ],
-            summary: "Développement d'un décorateur d'API régulant le traitement des files d'attente à l'aide de DynamoDB et de clés de statut."
-        }
+        NEWSByLevel = await response.json();
+        console.log("Mock data loaded successfully!", NEWSByLevel);
+        
+        // Initialiser l'interface après le chargement des données
+        initUI();
+    } catch (e) {
+        console.error("Could not load mock data. Fallback to empty array.", e);
+        NEWSByLevel = [];
+        initUI();
     }
-];
+}
 
 // 3. Application Variables & Persistent State
 const state = {
@@ -215,6 +53,13 @@ const state = {
 
 // 4. Initialize Elements on Document Loaded
 document.addEventListener("DOMContentLoaded", () => {
+    // Start the loading sequence with mock data
+    loadMockData();
+    lucide.createIcons();
+});
+
+// App Initialization
+function initUI() {
     initDate();
     initPageState();
     initTopics();
@@ -223,7 +68,7 @@ document.addEventListener("DOMContentLoaded", () => {
     
     // Refresh lucide icons
     lucide.createIcons();
-});
+}
 
 // Set current date on French style
 function initDate() {
