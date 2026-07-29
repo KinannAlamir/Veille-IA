@@ -5,3 +5,4 @@ private-instructions.md
 *.config
 *.log
 __pycache__/
+data/

@@ -1,9 +1,9 @@
 [
     {
-        "id": "news_auto_edca4c22",
-        "tag": "ERROR",
-        "topicId": "automation",
-        "title": "Amazon Neptune now supports tag-based access control for IAM",
+        "id": "news_auto_b6291e49",
+        "tag": "CLOUD",
+        "topicId": "cloud",
+        "title": "Amazon EKS Provisioned Control Plane now delivers faster pod autoscaling",
         "source": "RSS Scraper",
         "date": "Aujourd'hui",
         "score": "80",
@@ -11,25 +11,27 @@
         "comments": "0",
         "shares": "0",
         "highLevel": {
-            "linkedinHook": "Error formatting",
+            "linkedinHook": "📣 New on Amazon EKS: Faster pod autoscaling with up to 40x increase in HPA sync concurrency, enabling quicker response to demand. #CloudComputing #DevOps #Kubernetes",
             "facts": [
-                "Error processing with Bedrock"
+                "Amazon EKS now delivers faster pod autoscaling",
+                "HPA sync concurrency increased up to 40 times the default Kubernetes value"
             ],
-            "summary": "Failed"
+            "summary": "Amazon EKS enhances pod autoscaling by increasing HPA sync concurrency, reducing response time to increased load."
         },
         "lowLevel": {
-            "linkedinHook": "Error formatting",
+            "linkedinHook": "🔧 Developers & Architects: Speed up Kubernetes workload scaling with Amazon EKS's increased HPA sync concurrency. #Cloud #DevOps #Kubernetes",
             "facts": [
-                "Error processing with Bedrock"
+                "Kubernetes HPA processes objects in parallel with HPA sync concurrency",
+                "Provisioned Control Plane clusters now process more HPA objects simultaneously"
             ],
-            "summary": "Failed"
+            "summary": "Amazon EKS's increased HPA sync concurrency enables faster processing of Kubernetes workload scaling objects."
         }
     },
     {
-        "id": "news_auto_8d136aa7",
-        "tag": "ERROR",
-        "topicId": "automation",
-        "title": "AWS Glue Data Quality now supports anomaly detection and writing results to the AWS Glue Data Catalog",
+        "id": "news_auto_cabac6d4",
+        "tag": "CLOUD",
+        "topicId": "cloud",
+        "title": "Second-generation AWS Outposts racks now supported in the AWS Asia Pacific (Mumbai) Region",
         "source": "RSS Scraper",
         "date": "Aujourd'hui",
         "score": "81",
@@ -37,70 +39,20 @@
         "comments": "2",
         "shares": "0",
         "highLevel": {
-            "linkedinHook": "Error formatting",
+            "linkedinHook": "🌐 New opportunity: AWS Outposts racks now available in the Asia Pacific (Mumbai) Region! 🇮🇳\nBoost your hybrid strategy with consistent experience and data residency.\nLearn more: [Blog](https://aws.amazon.com/blogs/aws/announcing-second-generation-aws-outposts-racks-with-breakthrough-performance-and-scalability-on-premises/) & [User Guide](https://docs.aws.amazon.com/outposts/latest/network-userguide/what-is-outposts.html)",
             "facts": [
-                "Error processing with Bedrock"
+                "AWS Outposts racks extended to Asia Pacific (Mumbai) Region",
+                "Supports organizations in India and beyond"
             ],
-            "summary": "Failed"
+            "summary": "AWS Outposts racks now available in Asia Pacific (Mumbai) Region, offering a hybrid experience and data residency benefits."
         },
         "lowLevel": {
-            "linkedinHook": "Error formatting",
+            "linkedinHook": "💻 Exciting news for developers: Second-generation AWS Outposts racks now supported in Asia Pacific (Mumbai) Region!\nUnlock the potential of hybrid cloud architectures.\nFind out more: [Blog](https://aws.amazon.com/blogs/aws/announcing-second-generation-aws-outposts-racks-with-breakthrough-performance-and-scalability-on-premises/) & [User Guide](https://docs.aws.amazon.com/outposts/latest/network-userguide/what-is-outposts.html)",
             "facts": [
-                "Error processing with Bedrock"
+                "Second-generation Outposts racks in Asia Pacific (Mumbai) Region",
+                "Connects to on-premises systems and home Region for application management"
             ],
-            "summary": "Failed"
-        }
-    },
-    {
-        "id": "news_auto_3b5d5ed8",
-        "tag": "ERROR",
-        "topicId": "automation",
-        "title": "Ask HN: Crooked Timber showed showed me a virus captcha, What now?",
-        "source": "RSS Scraper",
-        "date": "Aujourd'hui",
-        "score": "82",
-        "period": "Cette semaine",
-        "comments": "4",
-        "shares": "0",
-        "highLevel": {
-            "linkedinHook": "Error formatting",
-            "facts": [
-                "Error processing with Bedrock"
-            ],
-            "summary": "Failed"
-        },
-        "lowLevel": {
-            "linkedinHook": "Error formatting",
-            "facts": [
-                "Error processing with Bedrock"
-            ],
-            "summary": "Failed"
-        }
-    },
-    {
-        "id": "news_auto_6245fa95",
-        "tag": "ERROR",
-        "topicId": "automation",
-        "title": "VMs can't boot with Network Mode set to Bridged on Apple M5 Pro machines",
-        "source": "RSS Scraper",
-        "date": "Aujourd'hui",
-        "score": "83",
-        "period": "Cette semaine",
-        "comments": "6",
-        "shares": "0",
-        "highLevel": {
-            "linkedinHook": "Error formatting",
-            "facts": [
-                "Error processing with Bedrock"
-            ],
-            "summary": "Failed"
-        },
-        "lowLevel": {
-            "linkedinHook": "Error formatting",
-            "facts": [
-                "Error processing with Bedrock"
-            ],
-            "summary": "Failed"
+            "summary": "Second-generation AWS Outposts racks now available in Asia Pacific (Mumbai) Region, enabling hybrid cloud architectures and low latency access to on-premises systems."
         }
     }
 ]

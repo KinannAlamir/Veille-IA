@@ -22,14 +22,14 @@ def load_scraped_data(file_path: str) -> list[dict]:
         return []
 
 def call_bedrock(content: str, title: str) -> dict:
-    """Calls Amazon Bedrock using Ministral 3B for cost-effective enrichment."""
+    """Calls Amazon Bedrock using Mistral 7B for cost-effective enrichment."""
     logger.info(f"Calling Bedrock for: {title}")
     
-    # Region Londres (eu-west-2) qui possède Ministral 3B
-    bedrock = boto3.client(service_name='bedrock-runtime', region_name="eu-west-2")
+    # On pointe sur la région Paris où vous avez Mistral
+    bedrock = boto3.client(service_name='bedrock-runtime', region_name="eu-west-3")
     
-    # Utilisation de Ministral 3B
-    model_id = "mistral.ministral-3b-instruct-v1:0"
+    # Utilisation de Mistral 7B Instruct
+    model_id = "mistral.mistral-7b-instruct-v0:2"
     
     prompt = f"""Tu es un analyste technologique expert Wavestone. Analyse le texte suivant et renvoie la réponse EXACTEMENT au format JSON spécifié, sans aucun texte avant ou après.
 
