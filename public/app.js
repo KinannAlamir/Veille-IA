@@ -19,12 +19,16 @@ const TOPICS_LIST = [
 ];
 
 // 2. LinkedIn Feed News Database (Supporting dual-state High & Low reading levels)
-let NEWSByLevel = []; // Sera rempli par le fetch local
+let NEWSByLevel = []; // Sera rempli par le fetch local ou API Cloud
 
-// Fonction asynchrone pour charger les données mockées depuis data.json
+// Fonction asynchrone pour charger les données
 async function loadMockData() {
     try {
-        const response = await fetch('./data.json');
+        // Remplacer "VOTRE_URL_DE_LAMBDA" par l'URL Function URL une fois déployée.
+        // Pour le moment en attendant l'URL, on simule en local.
+        const API_URL = 'https://puxvcvasttxwh7rkbivf2cavsm0effqy.lambda-url.eu-west-2.on.aws/'; // Demain: 'https://xxxxx.lambda-url.eu-west-1.on.aws/'
+        
+        const response = await fetch(API_URL);
         if (!response.ok) {
             throw new Error(`HTTP error! status: ${response.status}`);
         }
