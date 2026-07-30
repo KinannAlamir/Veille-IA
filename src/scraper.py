@@ -5,7 +5,7 @@ from src.config import RSS_FEEDS, SCRAPED_RAW_FILE, setup_logging
 
 logger = logging.getLogger(__name__)
 
-def scrape_articles(limit_per_feed: int = 2) -> list[dict]:
+def scrape_articles(limit_per_feed: int = 5) -> list[dict]:
     """Scrapes articles from configured RSS feeds."""
     articles = []
     

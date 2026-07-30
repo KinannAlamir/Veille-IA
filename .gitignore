@@ -6,3 +6,19 @@ private-instructions.md
 *.log
 __pycache__/
 data/
+# Python wheel and archives
+feedparser-6.0.13-py3-none-any.whl
+feedparser-layer.zip
+sgmllib3k-1.0.0.tar.gz
+
+# Layer directories
+feedparser-layer/
+sgmllib3k-1.0.0/
+lambda_package/
+
+# Generated files
+lambda_out.json
+
+# Specific source file
+lambdas/ingest_articles.py
+``

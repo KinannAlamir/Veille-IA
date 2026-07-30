@@ -2,20 +2,22 @@
  * Wavestone CTO Advisory Signal - Core Web Application (v2.1)
  */
 
-// 1. Flat List of 12 Topics (Sub-sections only - Groups removed of main hierarchy)
+// 1. Flat List of Topics
 const TOPICS_LIST = [
-    { id: "ma", label: "M&A", desc: "Suivi des fusions-acquisitions technologiques, consolidations et opportunités de marché." },
-    { id: "sourcing", label: "Sourcing", desc: "Stratégies d'achat IT, relations contractuelles avec les éditeurs et gouvernance cloud." },
-    { id: "smartflow", label: "SmartFlow", desc: "Optimisation des processus opérationnels par l'automatisation et l'analyse de valeur." },
-    { id: "ea", label: "EA (Enterprise Architecture)", desc: "Cartographie du système d'information, urbanisation et alignement applicatif moderne." },
-    { id: "workplace", label: "Workplace", desc: "Révolution des environnements de travail, poste client hybride et productivité." },
-    { id: "comm_tools", label: "Communication tools", desc: "Flux de collaboration en temps réel : Teams, Slack, Zoom et intégrations tierces." },
-    { id: "mod_management", label: "Modern management", desc: "Méthodologies agiles à l'échelle, management visuel et frameworks hybrides." },
-    { id: "next_gen_support", label: "Next Gen Support", desc: "Modèles de support utilisateur disruptés par l'IA de niveau N1 / N2." },
-    { id: "quantum", label: "Quantum computing", desc: "R&D quantique assistée, algorithmes novateurs et cas d'usage business émergents." },
-    { id: "automation", label: "Automation", desc: "Kubernetes, orchestration de conteneurs, provisionnement IaC (Terraform) et GitOps." },
-    { id: "infra_arch", label: "Infrastructure & Architecture", desc: "Serverless scaling, conception asynchrone, API Management et Edge architectures." },
-    { id: "hyperscalers", label: "Hyperscalers", desc: "Suivi technologique des roadmap techniques de cloud public (AWS, Azure, Google Cloud)." }
+    { id: "arch_design", label: "Architecture & Design", desc: "API, Data platform, Event-Driven, Microservices, SASE, SAP, Archi d'entreprise" },
+    { id: "infra_conn", label: "Infrastructure & Connectivity", desc: "Compute, Storage, Virtualization, SDWAN, 5G / LEO, Smart Connectivity" },
+    { id: "cloud_adopt", label: "Cloud Adoption & IT Programs", desc: "Move 2 cloud, TOM Cloud, Schéma directeur, Réversibilité & Sourcing" },
+    { id: "auto_ops_sre", label: "Automation, Ops & SRE", desc: "DevOps, SRE, Kubernetes, Terraform, CI/CD, Observabilité" },
+    { id: "sovereignty_resilience", label: "Souveraineté & Résilience", desc: "Cloud de confiance, SecNumCloud, Cloud Security, SecOps, VMware" },
+    { id: "sustech_finops", label: "Sustech & FinOps", desc: "Greenops, Finops / coûts, GreenIT, Cloud Sustainability" },
+    { id: "hyperscalers", label: "Hyperscalers", desc: "Innovation et annonces AWS, Azure, GCP" },
+    { id: "ai", label: "Intelligence Artificielle", desc: "GenAI, MLOps, AI Governance" },
+    { id: "quantum", label: "Quantum Computing", desc: "Post-Quantum Crypto, Quantum Algorithms, QPU Infrastructure" },
+    { id: "fow_modern_workplace", label: "Modern Workplace & Infra", desc: "Périmètre matériel, réseau, environnement physique/hybride et gestion de flotte" },
+    { id: "fow_comm_collab", label: "Communication et Collab", desc: "Outils d'échange, visioconférence, voix, messagerie d'entreprise" },
+    { id: "fow_nextgen_support", label: "Next Gen IT Support", desc: "Assistance utilisateurs, résolution incidents, automatisation des tickets" },
+    { id: "fow_cyber_compliance", label: "Cyber, Identity & Compliance", desc: "Sécurité des accès, protection des données, règles légales IT" },
+    { id: "fow_data_ai", label: "Data Dev & AI Capabilities", desc: "Briques techno applicatives, gestion des données et modèles de fondation" }
 ];
 
 // 2. LinkedIn Feed News Database (Supporting dual-state High & Low reading levels)
@@ -41,6 +43,47 @@ async function loadMockData() {
         console.error("Could not load mock data. Fallback to empty array.", e);
         NEWSByLevel = [];
         initUI();
+    }
+}
+
+// Global Ingestion Trigger
+window.forceIngestion = async function() {
+    const INGESTION_LAMBDA_URL = 'https://tzhjgpcakz7is3qa7a2zw3hu7m0zwsur.lambda-url.eu-west-2.on.aws/'; 
+    if (!INGESTION_LAMBDA_URL) {
+        showToast("Erreur : L'URL de votre fonction Lambda d'ingestion (Étape 4) n'est pas configurée dans app.js à la ligne 41.", "alert-circle", "red");
+        return;
+    }
+
+    const btn = document.getElementById("btn-force-ingest");
+    if(btn) {
+        btn.disabled = true;
+        btn.innerHTML = `<i data-lucide="loader-2" class="w-4 h-4 animate-spin"></i><span>Traitement IA en cours...</span>`;
+        lucide.createIcons();
+    }
+
+    showToast("AWS : Scraping et inférence Mistral 7B en cours... Cela prend environ 10-15 secondes.", "bot", "indigo");
+
+    try {
+        const res = await fetch(INGESTION_LAMBDA_URL, { method: 'POST' });
+        if(res.ok) {
+            const data = await res.json();
+            showToast(`Ingestion terminée avec succès ! ${data.processed} ajouts, ${data.skipped} ignorés.`, "check-circle", "emerald");
+            // Reload global data matching database update
+            setTimeout(() => {
+                location.reload();
+            }, 2000);
+        } else {
+            showToast(`Erreur HTTP Serveur AWS : ${res.status}`, "alert-circle", "red");
+        }
+    } catch (e) {
+        showToast("Erreur réseau requète Ingestion AWS.", "alert-circle", "red");
+        console.error(e);
+    } finally {
+        if(btn) {
+            btn.disabled = false;
+            btn.innerHTML = `<i data-lucide="refresh-cw" class="w-4 h-4"></i><span>Ingestion AWS IA</span>`;
+            lucide.createIcons();
+        }
     }
 }
 
@@ -83,12 +126,12 @@ function initDate() {
 
 // Retrieve or initialize states from localStorage
 function initPageState() {
-    const savedTopics = localStorage.getItem("signal_selected_topics_v2");
-    const savedPage = localStorage.getItem("signal_active_page_v2");
-    const savedLevel = localStorage.getItem("signal_reading_level_v2");
-    const savedLiked = localStorage.getItem("signal_liked_set_v2");
-    const savedTopicLevels = localStorage.getItem("signal_topic_levels_v2");
-    const savedTopicQuotas = localStorage.getItem("signal_topic_quotas_v2");
+    const savedTopics = localStorage.getItem("signal_selected_topics_v3");
+    const savedPage = localStorage.getItem("signal_active_page_v3");
+    const savedLevel = localStorage.getItem("signal_reading_level_v3");
+    const savedLiked = localStorage.getItem("signal_liked_set_v3");
+    const savedTopicLevels = localStorage.getItem("signal_topic_levels_v3");
+    const savedTopicQuotas = localStorage.getItem("signal_topic_quotas_v3");
     
     if (savedTopics) {
         state.selectedTopics = JSON.parse(savedTopics);
@@ -133,7 +176,8 @@ function initPageState() {
 
     // Initialize mock likes counts
     NEWSByLevel.forEach(n => {
-        state.likesCount[n.id] = parseInt(n.score) - 40; // Simulates some initial likes
+        // Generate a small random number of likes for simulation as score is removed
+        state.likesCount[n.id] = Math.floor(Math.random() * 15) + 2; 
     });
 
     updateBadgeCounts();
@@ -141,12 +185,12 @@ function initPageState() {
 }
 
 function saveState() {
-    localStorage.setItem("signal_selected_topics_v2", JSON.stringify(state.selectedTopics));
-    localStorage.setItem("signal_active_page_v2", state.activePage);
-    localStorage.setItem("signal_reading_level_v2", state.readingLevel);
-    localStorage.setItem("signal_liked_set_v2", JSON.stringify(state.likedSet));
-    localStorage.setItem("signal_topic_levels_v2", JSON.stringify(state.topicLevels));
-    localStorage.setItem("signal_topic_quotas_v2", JSON.stringify(state.topicQuotas));
+    localStorage.setItem("signal_selected_topics_v3", JSON.stringify(state.selectedTopics));
+    localStorage.setItem("signal_active_page_v3", state.activePage);
+    localStorage.setItem("signal_reading_level_v3", state.readingLevel);
+    localStorage.setItem("signal_liked_set_v3", JSON.stringify(state.likedSet));
+    localStorage.setItem("signal_topic_levels_v3", JSON.stringify(state.topicLevels));
+    localStorage.setItem("signal_topic_quotas_v3", JSON.stringify(state.topicQuotas));
 }
 
 function updateBadgeCounts() {
@@ -163,7 +207,8 @@ function updateBadgeCounts() {
     const statTopicsCountEl = document.getElementById("stat-topics-count");
     const statTopicsDeltaEl = document.getElementById("stat-topics-delta");
     if (statTopicsCountEl) statTopicsCountEl.textContent = count;
-    if (statTopicsDeltaEl) statTopicsDeltaEl.textContent = count === 12 ? "Tous suivis" : `${count} / 12 actifs`;
+    const totalTopics = TOPICS_LIST.length;
+    if (statTopicsDeltaEl) statTopicsDeltaEl.textContent = count === totalTopics ? "Tous suivis" : `${count} / ${totalTopics} actifs`;
 }
 
 // Switch styles of Sidebar Reading Level buttons
@@ -618,10 +663,9 @@ function populateDashboardSignals() {
                 <span class="pill select-none">${news.tag}</span>
                 <div class="flex items-center gap-1">
                     <span class="text-[10px] text-brand-violet font-bold select-none bg-brand-violetSoft px-2 py-0.5 rounded-full">#${priorityIndex} ${lName}</span>
-                    <span class="text-xs text-green-600 font-bold select-none">${news.score}% pertinent</span>
                 </div>
             </div>
-            <h4 class="font-display font-semibold text-slate-900 group-hover:text-brand-violet transition-colors text-sm leading-snug cursor-pointer" onclick="shadowSwitchNews()">${news.title}</h4>
+            <h4 class="font-display font-semibold text-slate-900 group-hover:text-brand-violet transition-colors text-sm leading-snug cursor-pointer" onclick="openArticle('${news.url}')" title="Lire l'article source">${news.title}</h4>
             <p class="text-xs text-brand-muted leading-relaxed mt-1 line-clamp-2">${news[lvl].summary}</p>
             <div class="flex items-center gap-2 text-[10px] text-slate-400 mt-2 select-none">
                 <span>${news.source}</span>
@@ -661,14 +705,10 @@ function populateNewsFeed() {
     });
 
     // Simulate different article quantities depending on topic preference rank
-    // Rule: items with poor rank (7 or lower) are displayed only if their matching score is very high (>90)
-    // This perfectly simulates prioritisation weights on feed quantities
+    // Filter out articles that have a priority too low to not overflow the feed.
     filtered = filtered.filter(news => {
         const rank = state.selectedTopics.indexOf(news.topicId) + 1; // 1-based rank
-        if (rank > 6) {
-            return parseInt(news.score) >= 90;
-        }
-        return true;
+        return rank <= 12; // Adjusted to show top 12 topics
     });
 
     // Sub-topic mapping filtering
@@ -781,11 +821,10 @@ function populateNewsFeed() {
                             <span class="bg-brand-violet text-white px-2 py-0.5 rounded">${news.tag}</span>
                             <span class="text-brand-muted">#${priorityRank} ${topicLabel}</span>
                         </div>
-                        <span class="text-[#087c4b]">${news.score}% de pertinence IA</span>
                     </div>
 
                     <div class="p-4 space-y-3">
-                        <h4 class="font-display font-bold text-slate-900 text-sm leading-snug group-hover:text-brand-violet transition-all">${news.title}</h4>
+                        <h4 class="font-display font-bold text-slate-900 text-sm leading-snug group-hover:text-brand-violet transition-all" onclick="event.stopPropagation(); openArticle('${news.url}')" title="Lire l'article source">${news.title}</h4>
                         <p class="text-[11px] text-brand-muted leading-relaxed">${news[lvl].summary}</p>
                         
                         <!-- Mini bullet-list for easy reading -->
@@ -797,9 +836,9 @@ function populateNewsFeed() {
                         </div>
                     </div>
 
-                    <div class="px-4 py-2 border-t border-slate-100 bg-white flex items-center justify-between text-[10px] text-slate-400 select-none">
+                    <div class="px-4 py-2 border-t border-slate-100 bg-white flex items-center justify-between text-[10px] text-slate-400 select-none hover:bg-slate-50 transition-colors" onclick="event.stopPropagation(); openArticle('${news.url}')">
                         <span class="flex items-center gap-1"><i data-lucide="globe" class="w-3 h-3"></i> Source: ${news.source}</span>
-                        <span class="hover:underline text-brand-violet font-bold flex items-center gap-1">Prendre le contrôle <i data-lucide="chevron-right" class="w-2.5 h-2.5"></i></span>
+                        <span class="hover:underline text-brand-violet font-bold flex items-center gap-1">Lire l'article complet <i data-lucide="external-link" class="w-2.5 h-2.5"></i></span>
                     </div>
 
                 </div>
@@ -981,7 +1020,7 @@ function generateDraftText(isLoadDefault = false) {
         selectedArticles.forEach((art, idx) => {
             draftHtml += `### [#${idx+1}] ${art.title}\n`;
             draftHtml += `${state.readingLevel === "high" ? art.highLevel.summary : art.lowLevel.summary}\n`;
-            draftHtml += `*Source : ${art.source} - Pertinence IA : ${art.score}%*\n\n`;
+            draftHtml += `*Source : ${art.source}*\n\n`;
         });
         draftHtml += `\n© Wavestone CTO Advisory - Rédigé d'après vos consignes (${promptInput}).`;
     } else {
@@ -1006,6 +1045,15 @@ function generateDraftText(isLoadDefault = false) {
         showToast("Brouillon généré par Gemini !", "sparkles", "emerald");
     }
 }
+
+// Open article safely
+window.openArticle = function(url) {
+    if (!url || url === "undefined" || url === "null" || url === "#" || url === "") {
+        showToast("L'URL source n'est pas disponible pour cet ancien article.", "link-2", "red");
+        return;
+    }
+    window.open(url, '_blank');
+};
 
 // Share helper
 window.shareDirectly = function(newsId) {

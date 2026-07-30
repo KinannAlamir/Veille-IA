@@ -94,6 +94,15 @@
                         </button>
                     </div>
                 </div>
+
+                <!-- Action : Forcer l'ingestion AWS -->
+                <div class="mt-6 border-t border-white/10 pt-4">
+                    <button id="btn-force-ingest" class="w-full flex items-center justify-center gap-2 px-3 py-2 bg-brand-green text-brand-violetDark rounded-lg text-xs font-bold transition-all hover:bg-white hover:text-brand-violetDark shadow-sm focus:outline-none" onclick="forceIngestion()">
+                        <i data-lucide="refresh-cw" class="w-4 h-4"></i>
+                        <span>Ingestion AWS IA</span>
+                    </button>
+                    <p class="text-[9px] text-[#a9a0dc] text-center mt-2 leading-tight">Déclenche la Lambda de scraping et le modèle Mistral 7B manuellement.</p>
+                </div>
             </div>
         </div>
 
