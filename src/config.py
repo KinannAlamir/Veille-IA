@@ -13,11 +13,20 @@ UI_DATA_FILE = os.path.join(PUBLIC_DIR, "data.json")
 # Sources
 RSS_FEEDS = [
     "https://aws.amazon.com/about-aws/whats-new/recent/feed/",
-    "https://hnrss.org/frontpage"
+    "https://azurecomcdn.azureedge.net/en-us/updates/feed/",
+    "https://hnrss.org/frontpage",
+    "https://devops.com/feed/",
+    "https://feeds.feedburner.com/TheHackersNews",
+    "https://www.artificialintelligence-news.com/feed/"
 ]
 
 # AI
-TOPIC_MAP = ["boosting_cto", "automation", "cloud", "ia"]
+TOPIC_MAP = [
+    "arch_design", "infra_conn", "cloud_adopt", "auto_ops_sre", 
+    "sovereignty_resilience", "sustech_finops", "hyperscalers", 
+    "ai", "quantum", "fow_modern_workplace", "fow_comm_collab", 
+    "fow_nextgen_support", "fow_cyber_compliance", "fow_data_ai"
+]
 
 def setup_logging():
     logging.basicConfig(

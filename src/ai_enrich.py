@@ -31,12 +31,13 @@ def call_bedrock(content: str, title: str) -> dict:
     # Utilisation de Mistral 7B Instruct
     model_id = "mistral.mistral-7b-instruct-v0:2"
     
+    valid_topics = "arch_design, infra_conn, cloud_adopt, auto_ops_sre, sovereignty_resilience, sustech_finops, hyperscalers, ai, quantum, fow_modern_workplace, fow_comm_collab, fow_nextgen_support, fow_cyber_compliance, fow_data_ai"
     prompt = f"""Tu es un analyste technologique expert Wavestone. Analyse le texte suivant et renvoie la réponse EXACTEMENT au format JSON spécifié, sans aucun texte avant ou après.
 
 Format JSON attendu:
 {{
-  "tag": "Un mot clé principal (ex: IA, CLOUD, CYBER)",
-  "topicId": "Un identifiant parmi: automation, cloud, ia, boosting_cto",
+  "tag": "Un mot clé (ex: IA, CLOUD, CYBER)",
+  "topicId": "Un identifiant obligatoire parmi : {valid_topics}",
   "highLevel": {{
     "linkedinHook": "Une accroche LinkedIn avec des emojis, orientée business et stratégie.",
     "facts": [
@@ -163,7 +164,8 @@ def main():
         # Enrich and structure
         enriched = call_bedrock(article["content"], article["title"])
         final_doc = format_enriched_article(idx, article, enriched)
-        final_doc["id"] = generated_id 
+        final_doc["id"] = generated_id
+        final_doc["url"] = article.get("url", "")
         
         # Save to list for local JSON backup
         enriched_data.append(final_doc)
