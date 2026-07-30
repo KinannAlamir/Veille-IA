@@ -20,6 +20,13 @@ RSS_FEEDS = [
     "https://www.artificialintelligence-news.com/feed/"
 ]
 
+WEB_SCRAPE_TARGETS = [
+    {"url": "https://news.ycombinator.com/", "type": "hackernews", "name": "HackerNews Web"},
+    {"url": "https://thenewstack.io/", "type": "generic_blog", "name": "The New Stack"},
+    {"url": "https://blog.cloudflare.com/", "type": "generic_blog", "name": "Cloudflare Blog"},
+    {"url": "https://huggingface.co/blog", "type": "generic_blog", "name": "Hugging Face Blog"}
+]
+
 # AI
 TOPIC_MAP = [
     "arch_design", "infra_conn", "cloud_adopt", "auto_ops_sre", 
