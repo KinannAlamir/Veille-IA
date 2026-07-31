@@ -168,7 +168,13 @@
                 <div class="flex-1 space-y-4">
                     <div class="flex items-baseline justify-between mb-2">
                         <h2 class="font-display font-bold text-xl text-brand-ink">Les derniers signaux</h2>
-                        <span class="text-xs text-brand-muted">Mis à jour aujourd'hui à 09:42</span>
+                        <div class="flex items-center gap-3">
+                            <select id="dashboard-sort-toggle" class="bg-white border border-slate-200 hover:border-brand-line rounded-lg px-2 py-1 text-[11px] font-bold focus:outline-none focus:ring-1 focus:ring-brand-violet transition-all text-slate-700 cursor-pointer" onchange="renderPage()">
+                                <option value="priority">Trier par Préférence</option>
+                                <option value="date">Plus récent en premier</option>
+                            </select>
+                            <span class="text-xs text-brand-muted hidden sm:inline">Mis à jour aujourd'hui</span>
+                        </div>
                     </div>
                     <div class="bg-white border border-brand-line rounded-2xl p-6 shadow-sm divide-y divide-slate-100" id="recent-signals-container">
                         <!-- Populated via Javascript -->

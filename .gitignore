@@ -21,4 +21,3 @@ lambda_out.json
 
 # Specific source file
 lambdas/ingest_articles.py
-``

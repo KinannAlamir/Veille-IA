@@ -626,15 +626,58 @@ function populateFilterTopics() {
 function populateDashboardSignals() {
     const container = document.getElementById("recent-signals-container");
     if (!container) return;
+
+    // Get current sort mode from UI toggle
+    const sortToggle = document.getElementById("dashboard-sort-toggle");
+    const sortMode = sortToggle ? sortToggle.value : "priority";
     
-    // Sort feed articles based on exact order of state.selectedTopics
-    const activeNews = NEWSByLevel.filter(news => state.selectedTopics.includes(news.topicId))
+    // Track how many articles we've displayed per topic
+    const topicCounts = {};
+    const finalNews = [];
+    
+    // Sort all matching articles by algorithm
+    // We iterate through them and only keep up to 2 per topicId to ensure variety
+    const preferredNews = NEWSByLevel
+        .filter(news => state.selectedTopics.includes(news.topicId))
         .sort((a, b) => {
-            const indexA = state.selectedTopics.indexOf(a.topicId);
-            const indexB = state.selectedTopics.indexOf(b.topicId);
-            return indexA - indexB; // First priority wins
-        })
-        .slice(0, 3);
+            let dA = new Date(a.date).getTime();
+            let dB = new Date(b.date).getTime();
+            
+            // Fallback for invalid dates
+            if (isNaN(dA)) dA = 0;
+            if (isNaN(dB)) dB = 0;
+
+            if (sortMode === "priority") {
+                const indexA = state.selectedTopics.indexOf(a.topicId);
+                const indexB = state.selectedTopics.indexOf(b.topicId);
+                // If same priority, fallback to newest
+                if (indexA === indexB) {
+                    return dB - dA;
+                }
+                return indexA - indexB; // First priority wins
+            } else {
+                // Return newest first
+                return dB - dA;
+            }
+        });
+        
+    for (const news of preferredNews) {
+        if (!topicCounts[news.topicId]) {
+            topicCounts[news.topicId] = 0;
+        }
+        
+        if (topicCounts[news.topicId] < 2) {
+            finalNews.push(news);
+            topicCounts[news.topicId]++;
+        }
+        
+        // Stop once we have reached 7 diverse tools
+        if (finalNews.length >= 7) {
+            break;
+        }
+    }
+    
+    const activeNews = finalNews;
     
     if (activeNews.length === 0) {
         container.innerHTML = `
