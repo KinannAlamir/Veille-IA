@@ -4,7 +4,7 @@ import logging
 import hashlib
 import boto3
 from botocore.exceptions import ClientError
-from src.config import SCRAPED_RAW_FILE, OUTPUT_LOCAL_FILE, UI_DATA_FILE, setup_logging
+from src.config import SCRAPED_RAW_FILE, OUTPUT_LOCAL_FILE, UI_DATA_FILE, TOPIC_MAP, setup_logging
 from src.db import save_article_to_db, article_exists
 
 from src.agent_prompts import get_agent_prompt
@@ -154,9 +154,8 @@ def main():
             continue
             
         # Enrich and structure
-        # Simulation d'un routage : pour le dev, on simule que l'article relève de la souveraineté ou M&A etc.
-        test_categories = ["ea", "sourcing", "ma", "smartflow", "sovereignty_resilience"]
-        assigned_category = test_categories[idx % len(test_categories)]
+        # Simulation d'un routage : pour le dev, on fait tourner l'article sur les 14 sujets de la grille UI
+        assigned_category = TOPIC_MAP[idx % len(TOPIC_MAP)]
         
         enriched = call_bedrock(article["content"], article["title"], category=assigned_category)
         

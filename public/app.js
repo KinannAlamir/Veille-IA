@@ -20,6 +20,15 @@ const TOPICS_LIST = [
     { id: "fow_data_ai", label: "Data Dev & AI Capabilities", desc: "Briques techno applicatives, gestion des données et modèles de fondation" }
 ];
 
+// Alias des anciens identifiants de catégorie (agents historiques) vers les 14 sujets canoniques
+// de "Choix des sujets", pour que les rapports plus anciens restent rattachés à un sujet affiché.
+const LEGACY_TOPIC_ALIASES = {
+    ea: "arch_design",
+    sourcing: "cloud_adopt",
+    ma: "hyperscalers",
+    smartflow: "fow_nextgen_support"
+};
+
 // 2. LinkedIn Feed News Database (Supporting dual-state High & Low reading levels)
 let NEWSByLevel = []; // Sera rempli par le fetch local ou API Cloud
 
@@ -599,7 +608,194 @@ function renderPage() {
     } else if (state.activePage === "publish") {
         populatePublishSignalsPicker();
         generateDraftText(true);
+    } else if (state.activePage === "reports") {
+        populateReportFilters();
+        populateReports();
     }
+}
+
+// --- NEW FEATURE: REPORTS VIEW ---
+
+function populateReportFilters() {
+    const filterSelect = document.getElementById("report-topic-filter");
+    if (!filterSelect) return;
+
+    const currentVal = filterSelect.value || "all";
+    filterSelect.innerHTML = `<option value="all">Tous les sujets</option>`;
+
+    // Synchronisé avec la sélection faite dans "Choix des sujets" (même liste, même ordre)
+    TOPICS_LIST.forEach(topic => {
+        if (!state.selectedTopics.includes(topic.id)) return;
+        filterSelect.innerHTML += `<option value="${topic.id}">${topic.label}</option>`;
+    });
+
+    filterSelect.value = [...filterSelect.options].some(o => o.value === currentVal) ? currentVal : "all";
+}
+
+// Résume un rapport en une phrase courte pour l'aperçu du toggle de sujet
+function getOneLineSummary(report) {
+    const raw = (report.reportContent || report.title || "")
+        .replace(/[#*_`>]/g, "")
+        .replace(/\n+/g, " ")
+        .trim();
+
+    if (!raw) return report.title || "Résumé indisponible.";
+
+    const sentences = raw.split(/(?<=[.!?])\s+/).filter(s => s.trim().length > 20);
+    let sentence = (sentences[0] || raw).trim();
+
+    if (sentence.length > 150) {
+        sentence = sentence.slice(0, 147).trim() + "…";
+    }
+    return sentence;
+}
+
+// Génère le HTML d'une carte de rapport individuelle (avec Deep-dive dépliable)
+function renderReportCard(report) {
+    let dateObj = new Date(report.date);
+    let dateStr = isNaN(dateObj)
+        ? report.date // Use raw string like "Aujourd'hui"
+        : dateObj.toLocaleDateString('fr-FR', { day: 'numeric', month: 'long', year: 'numeric', hour: '2-digit', minute: '2-digit' });
+
+    // Basic Markdown-to-HTML parser for the report text
+    let htmlContent = report.reportContent
+        .replace(/</g, "&lt;").replace(/>/g, "&gt;")
+        .replace(/^#+ (.*$)/gim, '<h3 class="font-display font-bold text-lg text-brand-ink mt-4 mb-2">$1</h3>')
+        .replace(/\*\*(.*?)\*\*/gim, '<strong class="text-slate-800">$1</strong>')
+        .replace(/^\- (.*$)/gim, '<li class="ml-4 list-disc list-outside">$1</li>')
+        .replace(/\n\n/g, '<br><br>')
+        .replace(/\n/g, '<br>');
+
+    const contentId = `report-content-${report.id.replace(/[^a-zA-Z0-9]/g, '')}`;
+
+    return `
+        <div class="p-6 bg-white hover:bg-slate-50/50 transition-colors group">
+            <div class="flex items-start justify-between cursor-pointer select-none" onclick="toggleDeepDive('${contentId}')">
+                <div class="flex-1 pr-6">
+                    <div class="flex items-center gap-2 mb-2">
+                        <span class="inline-block px-2 py-0.5 bg-brand-violetSoft text-brand-violetDark text-[9px] font-extrabold rounded uppercase tracking-wider">${report.tag}</span>
+                        <span class="text-[10px] text-slate-400 font-medium">${dateStr}</span>
+                    </div>
+                    <h3 class="font-display font-bold text-[17px] text-slate-900 group-hover:text-brand-violet transition-colors">${report.title}</h3>
+                    <p class="text-xs text-slate-500 mt-2 line-clamp-2 leading-relaxed whitespace-pre-line">${report.reportContent.substring(0, 200).replace(/#/g, "").replace(/\*/g, "").trim()}...</p>
+                </div>
+                <div class="flex-shrink-0 mt-2 flex flex-col gap-2">
+                    <button class="flex items-center justify-center gap-1.5 px-3 py-1.5 bg-slate-50 border border-slate-200 rounded-lg text-xs font-bold text-slate-500 hover:bg-slate-100 transition-all" onclick="event.stopPropagation(); window.open('${report.url || '#'}', '_blank')">
+                        <i data-lucide="globe" class="w-3.5 h-3.5"></i> Site officiel
+                    </button>
+                    <button class="flex items-center justify-center gap-1.5 px-3 py-1.5 bg-slate-50 border border-slate-200 rounded-lg text-xs font-bold text-brand-violet hover:bg-brand-violet hover:text-white transition-all">
+                        <i data-lucide="search" class="w-3.5 h-3.5"></i> Deep-dive
+                    </button>
+                </div>
+            </div>
+            <div id="${contentId}" class="hidden mt-4 pt-4 border-t border-slate-100 text-sm text-slate-700 leading-relaxed font-sans overflow-hidden">
+                ${htmlContent}
+            </div>
+        </div>
+    `;
+}
+
+function populateReports() {
+    const container = document.getElementById("reports-container");
+    const filterSelect = document.getElementById("report-topic-filter");
+    if (!container) return;
+
+    const selectedTopic = filterSelect ? filterSelect.value : "all";
+    const allReports = NEWSByLevel.filter(news => news.isReport);
+
+    // Liste des sujets à afficher : synchronisée avec "Choix des sujets" (ordre de préférence)
+    const topicsToDisplay = TOPICS_LIST.filter(topic =>
+        state.selectedTopics.includes(topic.id) &&
+        (selectedTopic === "all" || selectedTopic === topic.id)
+    );
+
+    // Regroupe les rapports par sujet
+    const groups = topicsToDisplay.map(topic => {
+        const reports = allReports
+            .filter(r => getNewsTopics(r).includes(topic.id))
+            .sort((a, b) => new Date(b.date) - new Date(a.date));
+        return { topic, reports };
+    }).filter(g => g.reports.length > 0);
+
+    if (groups.length === 0) {
+        container.innerHTML = `
+            <div class="py-12 text-center text-xs text-brand-muted flex flex-col items-center justify-center gap-2">
+                <i data-lucide="ghost" class="w-10 h-10 text-slate-200"></i>
+                <p class="font-bold text-slate-700 text-sm">Aucun rapport texte disponible</p>
+                <p class="max-w-md mt-0.5">Aucun sujet suivi n'a encore généré de rapport cette semaine. Activez d'autres thématiques dans "Choix des sujets" ou déclenchez l'ingestion.</p>
+            </div>
+        `;
+        lucide.createIcons();
+        return;
+    }
+
+    // Un seul sujet filtré : on déplie directement le groupe
+    const autoExpand = groups.length === 1;
+
+    container.innerHTML = groups.map(({ topic, reports }) => {
+        const groupId = `report-group-${topic.id}`;
+        const bulletsHtml = reports.map(r =>
+            `<li class="leading-relaxed">${getOneLineSummary(r)}</li>`
+        ).join("");
+
+        return `
+            <div class="rounded-2xl border border-slate-200 overflow-hidden">
+                <button type="button" class="w-full flex items-start gap-3 p-5 bg-slate-50/60 hover:bg-slate-100 transition-colors text-left" onclick="toggleReportGroup('${groupId}')">
+                    <i data-lucide="chevron-right" class="w-4 h-4 text-brand-violet mt-1 flex-shrink-0 transition-transform ${autoExpand ? 'rotate-90' : ''}" id="chevron-${topic.id}"></i>
+                    <div class="flex-1 min-w-0">
+                        <div class="flex items-center gap-2 flex-wrap">
+                            <h3 class="font-display font-bold text-base text-brand-ink">${topic.label}</h3>
+                            <span class="text-[10px] font-bold text-brand-violetDark bg-brand-violetSoft rounded-full px-2 py-0.5">${reports.length} article${reports.length > 1 ? 's' : ''}</span>
+                        </div>
+                        <ul class="mt-2 space-y-1 pl-4 list-disc list-outside text-xs text-slate-600">
+                            ${bulletsHtml}
+                        </ul>
+                    </div>
+                </button>
+                <div id="${groupId}" class="${autoExpand ? '' : 'hidden'} border-t border-slate-100 divide-y divide-slate-100">
+                    ${reports.map(r => renderReportCard(r)).join("")}
+                </div>
+            </div>
+        `;
+    }).join("");
+
+    lucide.createIcons();
+}
+
+// Fonction utilitaire pour le toggle du Deep-dive d'un rapport
+window.toggleDeepDive = function(contentId) {
+    const el = document.getElementById(contentId);
+    if (!el) return;
+    el.classList.toggle("hidden");
+};
+
+// Fonction utilitaire pour le toggle d'un groupe de sujet (accordéon)
+window.toggleReportGroup = function(groupId) {
+    const el = document.getElementById(groupId);
+    if (!el) return;
+    el.classList.toggle("hidden");
+
+    const topicId = groupId.replace("report-group-", "");
+    const chevron = document.getElementById(`chevron-${topicId}`);
+    if (chevron) chevron.classList.toggle("rotate-90");
+};
+
+// Helper function to handle both string and array for topicId, normalized against the canonical 14 topics
+function getNewsTopics(news) {
+    if (!news.topicId) return [];
+    const raw = Array.isArray(news.topicId) ? news.topicId : [news.topicId];
+    return raw.map(id => LEGACY_TOPIC_ALIASES[id] || id);
+}
+
+// Helper to get the best priority index among all topics of an article
+function getBestPriorityRank(news) {
+    const topics = getNewsTopics(news);
+    let best = 9999;
+    topics.forEach(t => {
+        const idx = state.selectedTopics.indexOf(t);
+        if (idx !== -1 && idx < best) best = idx;
+    });
+    return best === 9999 ? -1 : best;
 }
 
 // 8. Dynamic populating of active filter selections on the LinkedIn Feed Page
@@ -638,7 +834,7 @@ function populateDashboardSignals() {
     // Sort all matching articles by algorithm
     // We iterate through them and only keep up to 2 per topicId to ensure variety
     const preferredNews = NEWSByLevel
-        .filter(news => state.selectedTopics.includes(news.topicId))
+        .filter(news => getNewsTopics(news).some(t => state.selectedTopics.includes(t)))
         .sort((a, b) => {
             let dA = new Date(a.date).getTime();
             let dB = new Date(b.date).getTime();
@@ -648,8 +844,8 @@ function populateDashboardSignals() {
             if (isNaN(dB)) dB = 0;
 
             if (sortMode === "priority") {
-                const indexA = state.selectedTopics.indexOf(a.topicId);
-                const indexB = state.selectedTopics.indexOf(b.topicId);
+                const indexA = getBestPriorityRank(a);
+                const indexB = getBestPriorityRank(b);
                 // If same priority, fallback to newest
                 if (indexA === indexB) {
                     return dB - dA;
@@ -662,13 +858,24 @@ function populateDashboardSignals() {
         });
         
     for (const news of preferredNews) {
-        if (!topicCounts[news.topicId]) {
-            topicCounts[news.topicId] = 0;
+        // Find the most relevant topic to track the count limits
+        let primaryTopic = getNewsTopics(news)[0];
+        let bestIdx = 999;
+        getNewsTopics(news).forEach(t => {
+            let idx = state.selectedTopics.indexOf(t);
+            if (idx !== -1 && idx < bestIdx) {
+                bestIdx = idx;
+                primaryTopic = t;
+            }
+        });
+
+        if (!topicCounts[primaryTopic]) {
+            topicCounts[primaryTopic] = 0;
         }
         
-        if (topicCounts[news.topicId] < 2) {
-            finalNews.push(news);
-            topicCounts[news.topicId]++;
+        if (topicCounts[primaryTopic] < 2) {
+            finalNews.push({ ...news, displayTopic: primaryTopic, displayRank: bestIdx + 1 });
+            topicCounts[primaryTopic]++;
         }
         
         // Stop once we have reached 7 diverse tools
@@ -694,8 +901,8 @@ function populateDashboardSignals() {
     
     container.innerHTML = "";
     activeNews.forEach((news, idx) => {
-        const priorityIndex = state.selectedTopics.indexOf(news.topicId) + 1;
-        const mappedTopic = TOPICS_LIST.find(t => t.id === news.topicId);
+        const priorityIndex = news.displayRank || 1;
+        const mappedTopic = TOPICS_LIST.find(t => t.id === news.displayTopic);
         const lName = mappedTopic ? mappedTopic.label : "Sujet";
         const lvl = state.readingLevel === "low" ? "lowLevel" : "highLevel";
         
@@ -737,26 +944,26 @@ function populateNewsFeed() {
     const query = document.getElementById("search-input").value.toLowerCase().trim();
     const lvl = state.readingLevel === "low" || state.readingLevel === "lowLevel" ? "lowLevel" : "highLevel";
 
-    // Match selected topics criteria
-    let filtered = NEWSByLevel.filter(news => state.selectedTopics.includes(news.topicId));
+    // Simulation ou filtrage des cards classiques qui ne sont pas des longs rapports textes
+    let filtered = NEWSByLevel.filter(news => !news.isReport && getNewsTopics(news).some(t => state.selectedTopics.includes(t)));
 
     // Sort matching order of topics priority
     filtered.sort((a, b) => {
-        const indexA = state.selectedTopics.indexOf(a.topicId);
-        const indexB = state.selectedTopics.indexOf(b.topicId);
+        const indexA = getBestPriorityRank(a);
+        const indexB = getBestPriorityRank(b);
         return indexA - indexB;
     });
 
     // Simulate different article quantities depending on topic preference rank
     // Filter out articles that have a priority too low to not overflow the feed.
     filtered = filtered.filter(news => {
-        const rank = state.selectedTopics.indexOf(news.topicId) + 1; // 1-based rank
+        const rank = getBestPriorityRank(news) + 1; // 1-based rank
         return rank <= 12; // Adjusted to show top 12 topics
     });
 
     // Sub-topic mapping filtering
     if (selTopic !== "Tous") {
-        filtered = filtered.filter(news => news.topicId === selTopic);
+        filtered = filtered.filter(news => getNewsTopics(news).includes(selTopic));
     }
 
     // Period mapping filtering
@@ -789,9 +996,19 @@ function populateNewsFeed() {
 
     feedContainer.innerHTML = "";
     filtered.forEach(news => {
-        const topicObj = TOPICS_LIST.find(t => t.id === news.topicId);
+        let bestTopic = getNewsTopics(news)[0];
+        let bestRank = 999;
+        getNewsTopics(news).forEach(t => {
+            let idx = state.selectedTopics.indexOf(t);
+            if (idx !== -1 && idx < bestRank) {
+                bestRank = idx;
+                bestTopic = t;
+            }
+        });
+
+        const topicObj = TOPICS_LIST.find(t => t.id === bestTopic);
         const topicLabel = topicObj ? topicObj.label : "Sujet";
-        const priorityRank = state.selectedTopics.indexOf(news.topicId) + 1;
+        const priorityRank = bestRank + 1;
 
         // Visual badges reflecting priorities in backend matching
         let limitCollectMsg = "";
@@ -954,7 +1171,7 @@ function populatePublishSignalsPicker() {
     if (!container) return;
 
     // Load matching monitored ones
-    const activeNews = NEWSByLevel.filter(news => state.selectedTopics.includes(news.topicId));
+    const activeNews = NEWSByLevel.filter(news => getNewsTopics(news).some(t => state.selectedTopics.includes(t)));
 
     if (activeNews.length === 0) {
         container.innerHTML = `<p class="text-xs text-brand-muted text-center py-4">Aucun signal actif à inclure. Veuillez re-sélectionner des sujets.</p>`;
