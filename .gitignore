@@ -15,9 +15,14 @@ sgmllib3k-1.0.0.tar.gz
 feedparser-layer/
 sgmllib3k-1.0.0/
 lambda_package/
+.lambda_package/
+python/
 
 # Generated files
 lambda_out.json
+
+# Deployment build artifacts (regenerate via requirements.txt / pip install -t)
+*.zip
 
 # Specific source file
 lambdas/ingest_articles.py
