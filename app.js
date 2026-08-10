@@ -69,7 +69,7 @@ async function loadMockData() {
     try {
         // Remplacer "VOTRE_URL_DE_LAMBDA" par l'URL Function URL une fois déployée.
         // Pour le moment en attendant l'URL, on simule en local.
-        const API_URL = 'https://f7757ki4wfjhbodks66xswr6pq0juqtp.lambda-url.eu-west-2.on.aws/'; // Demain: 'https://xxxxx.lambda-url.eu-west-1.on.aws/'
+        const API_URL = 'https://puxvcvasttxwh7rkbivf2cavsm0effqy.lambda-url.eu-west-2.on.aws/';
         
         const response = await fetch(API_URL);
         if (!response.ok) {
@@ -89,7 +89,7 @@ async function loadMockData() {
 
 // Global Ingestion Trigger
 window.forceIngestion = async function() {
-    const INGESTION_LAMBDA_URL = 'https://v22m27gcm2c6mcbm7vrtadcgve0fovvh.lambda-url.eu-west-2.on.aws/'; 
+    const INGESTION_LAMBDA_URL = 'https://tzhjgpcakz7is3qa7a2zw3hu7m0zwsur.lambda-url.eu-west-2.on.aws/';
     if (!INGESTION_LAMBDA_URL) {
         showToast("Erreur : L'URL de votre fonction Lambda d'ingestion (Étape 4) n'est pas configurée dans app.js à la ligne 41.", "alert-circle", "red");
         return;
