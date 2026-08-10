@@ -1019,8 +1019,6 @@ function populateDashboardSignals() {
     
     container.innerHTML = "";
     activeNews.forEach((news, idx) => {
-        const priorityIndex = news.displayRank || 1;
-        const topicVisual = getTopicVisual(news.displayTopic);
         const lvl = state.readingLevel === "low" ? "lowLevel" : "highLevel";
         
         const itemDiv = document.createElement("div");
@@ -1028,12 +1026,6 @@ function populateDashboardSignals() {
         itemDiv.innerHTML = `
             <div class="flex items-center justify-between gap-1.5 mb-1.5">
                 <span class="pill select-none">${news.tag}</span>
-                <div class="flex items-center gap-1">
-                    <span class="flex items-center gap-1 text-[10px] text-${topicVisual.color}-700 font-bold select-none bg-${topicVisual.color}-50 px-2 py-0.5 rounded-full">
-                        <i data-lucide="${topicVisual.icon}" class="w-2.5 h-2.5"></i>
-                        #${priorityIndex} ${topicVisual.label}
-                    </span>
-                </div>
             </div>
             <h4 class="font-display font-semibold text-slate-900 group-hover:text-brand-violet transition-colors text-sm leading-snug cursor-pointer" onclick="openArticle('${news.url}')" title="Lire l'article source">${news.title}</h4>
             <p class="text-xs text-brand-muted leading-relaxed mt-1 line-clamp-2">${news[lvl].summary}</p>
@@ -1116,17 +1108,14 @@ function populateNewsFeed() {
 
     feedContainer.innerHTML = "";
     filtered.forEach(news => {
-        let bestTopic = getNewsTopics(news)[0];
         let bestRank = 999;
         getNewsTopics(news).forEach(t => {
             let idx = state.selectedTopics.indexOf(t);
             if (idx !== -1 && idx < bestRank) {
                 bestRank = idx;
-                bestTopic = t;
             }
         });
 
-        const topicVisual = getTopicVisual(bestTopic);
         const priorityRank = bestRank + 1;
 
         // Visual badges reflecting priorities in backend matching
@@ -1198,10 +1187,6 @@ function populateNewsFeed() {
                     <div class="p-4 border-b border-slate-100 flex items-center justify-between bg-white text-[10px] font-bold tracking-wider uppercase select-none">
                         <div class="flex items-center gap-2">
                             <span class="bg-brand-violet text-white px-2 py-0.5 rounded">${news.tag}</span>
-                            <span class="flex items-center gap-1 text-${topicVisual.color}-700 bg-${topicVisual.color}-50 px-2 py-0.5 rounded">
-                                <i data-lucide="${topicVisual.icon}" class="w-2.5 h-2.5"></i>
-                                #${priorityRank} ${topicVisual.label}
-                            </span>
                         </div>
                     </div>
 
