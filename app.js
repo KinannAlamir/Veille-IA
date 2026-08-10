@@ -786,6 +786,17 @@ function getNewsTopics(news) {
     return raw.map(id => LEGACY_TOPIC_ALIASES[id] || id);
 }
 
+// Compat. ascendante : anciens articles DynamoDB stockés au format imbriqué highLevel/lowLevel
+// (avant la suppression du niveau de lecture) n'ont pas encore les champs plats summary/facts/linkedinHook.
+function getArticleContent(news) {
+    const nested = news.highLevel || news.lowLevel || {};
+    return {
+        summary: news.summary || nested.summary || "",
+        facts: news.facts || nested.facts || [],
+        linkedinHook: news.linkedinHook || nested.linkedinHook || ""
+    };
+}
+
 // Dérive le vrai statut temporel ("Cette semaine" / "Ce mois-ci" / "Plus ancien") depuis la date réelle
 // de l'article plutôt que de se fier au champ "period" figé une fois pour toutes à l'ingestion.
 function getArticlePeriod(dateStr) {
@@ -930,7 +941,7 @@ function populateDashboardSignals() {
                 </div>
             </div>
             <h4 class="font-display font-semibold text-slate-900 group-hover:text-brand-violet transition-colors text-sm leading-snug cursor-pointer" onclick="openArticle('${news.url}')" title="Lire l'article source">${news.title}</h4>
-            <p class="text-xs text-brand-muted leading-relaxed mt-1 line-clamp-2">${news.summary}</p>
+            <p class="text-xs text-brand-muted leading-relaxed mt-1 line-clamp-2">${getArticleContent(news).summary}</p>
             <div class="flex items-center gap-2 text-[10px] text-slate-400 mt-2 select-none">
                 <span>${news.source}</span>
                 <span>•</span>
@@ -986,13 +997,14 @@ function populateNewsFeed() {
 
     // Word search filtering
     if (query) {
-        filtered = filtered.filter(news => 
-            news.title.toLowerCase().includes(query) || 
-            news.summary.toLowerCase().includes(query) || 
-            news.linkedinHook.toLowerCase().includes(query) ||
+        filtered = filtered.filter(news => {
+            const content = getArticleContent(news);
+            return news.title.toLowerCase().includes(query) || 
+            content.summary.toLowerCase().includes(query) || 
+            content.linkedinHook.toLowerCase().includes(query) ||
             news.tag.toLowerCase().includes(query) ||
-            (news.keywords || ["CTO", "Tech", "Wavestone"]).some(kw => kw.toLowerCase().includes(query))
-        );
+            (news.keywords || ["CTO", "Tech", "Wavestone"]).some(kw => kw.toLowerCase().includes(query));
+        });
     }
 
     if (filtered.length === 0) {
@@ -1045,7 +1057,8 @@ function populateNewsFeed() {
         });
 
         let factsListHtml = "";
-        news.facts.forEach(fact => {
+        const articleContent = getArticleContent(news);
+        articleContent.facts.forEach(fact => {
             factsListHtml += `
                 <li class="flex items-start gap-2.5">
                     <span class="text-brand-green font-bold select-none text-sm mt-0.5">•</span>
@@ -1082,7 +1095,7 @@ function populateNewsFeed() {
 
                 <!-- Conversational written hook representing LLM style -->
                 <div class="text-[11px] text-slate-800 leading-relaxed text-justify break-words whitespace-pre-line mb-4">
-                    ${news.linkedinHook}
+                    ${articleContent.linkedinHook}
                 </div>
 
                 <!-- Enclosed Attachment Frame mapping the actual scanned article -->
@@ -1099,7 +1112,7 @@ function populateNewsFeed() {
 
                     <div class="p-4 space-y-3">
                         <h4 class="font-display font-bold text-slate-900 text-sm leading-snug group-hover:text-brand-violet transition-all" onclick="event.stopPropagation(); openArticle('${news.url}')" title="Lire l'article source">${news.title}</h4>
-                        <p class="text-[11px] text-brand-muted leading-relaxed">${news.summary}</p>
+                        <p class="text-[11px] text-brand-muted leading-relaxed">${articleContent.summary}</p>
                         
                         <!-- Mini bullet-list for easy reading -->
                         <div class="pt-2 border-t border-slate-100/65">
@@ -1246,7 +1259,7 @@ function generateDraftText(isLoadDefault = false) {
         if (angle === "trends") {
             draftHtml = `🚀 [Veille CTO] Comment articuler croissance technologique et pragmatisme de coût ?\n\nLe gaspillage d’allocations de mémoire cloud pèse lourdement sur les bilans (jusqu'à 35% de surcoût sur le Serverless). Nos analyses montrent qu'ajuster dynamiquement vos ressources représente un gisement de performance immediat.\n\nLes tendances structurantes relevées par nos consultants :\n`;
             selectedArticles.forEach(art => {
-                draftHtml += `• ${art.title} : ${art.summary}\n`;
+                draftHtml += `• ${art.title} : ${getArticleContent(art).summary}\n`;
             });
             draftHtml += `\nUn enjeu majeur de notre accompagnement chez Wavestone. Débattons-en !\n\n#FinOps #CTOStrategy #CloudPlanning #Management`;
         } else if (angle === "cto_view") {
@@ -1269,7 +1282,7 @@ function generateDraftText(isLoadDefault = false) {
         draftHtml = `Chers partenaires,\n\nRetrouvez votre capsule de veille technologique active en mode Macro-Décideur.\n\n`;
         selectedArticles.forEach((art, idx) => {
             draftHtml += `### [#${idx+1}] ${art.title}\n`;
-            draftHtml += `${art.summary}\n`;
+            draftHtml += `${getArticleContent(art).summary}\n`;
             draftHtml += `*Source : ${art.source}*\n\n`;
         });
         draftHtml += `\n© Wavestone CTO Advisory - Rédigé d'après vos consignes (${promptInput}).`;
@@ -1280,7 +1293,7 @@ function generateDraftText(isLoadDefault = false) {
         draftHtml = `NOTE DE SYNTHÈSE CTO ADVISORY\n\nFiltre retenu : Macro / Impacts Métier\nConsigne : ${promptInput}\n\n1. Faits critiques identifiés :\n`;
         selectedArticles.forEach(art => {
             draftHtml += `- "${art.title}" (Source : ${art.source})\n`;
-            art.facts.forEach(f => draftHtml += `  • ${f}\n`);
+            getArticleContent(art).facts.forEach(f => draftHtml += `  • ${f}\n`);
             draftHtml += `\n`;
         });
         draftHtml += `2. Recommandations technologiques préconisées par le cabinet :\n  - Valider l'urbanisation orientée événements.\n  - Déployer l'anonymisation locale.`;
