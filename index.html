@@ -86,19 +86,6 @@
                         <span>Publier vos news</span>
                     </button>
                 </nav>
-                <!-- Lecture Level Toggle -->
-                <div class="mt-6 border-t border-white/10 pt-4">
-                    <p class="text-[10px] font-bold text-[#a9a0dc] tracking-wider uppercase mb-2">Niveau de lecture</p>
-                    <div class="grid grid-cols-2 gap-1 bg-[#1a0b4d] p-1 rounded-lg">
-                        <button id="btn-level-high" class="text-[10px] font-bold py-1.5 text-center rounded-lg transition-all bg-brand-violet text-white">
-                            High Level
-                        </button>
-                        <button id="btn-level-low" class="text-[10px] font-bold py-1.5 text-center rounded-lg transition-all text-[#a9a0dc] hover:text-white">
-                            Low Level
-                        </button>
-                    </div>
-                </div>
-
                 <!-- Action : Forcer l'ingestion AWS -->
                 <div class="mt-6 border-t border-white/10 pt-4">
                     <button id="btn-force-ingest" class="w-full flex items-center justify-center gap-2 px-3 py-2 bg-brand-green text-brand-violetDark rounded-lg text-xs font-bold transition-all hover:bg-white hover:text-brand-violetDark shadow-sm focus:outline-none" onclick="forceIngestion()">
@@ -288,11 +275,6 @@
                 <p class="text-xs font-bold uppercase tracking-wider text-brand-violet mb-1.5">Portail de veille · CTO Advisory</p>
                 <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
                     <h1 class="font-display font-bold text-4xl leading-none text-brand-ink lg:text-5xl">Mon fil d'actualité.</h1>
-                    <!-- Visual indicator for Reading Level -->
-                    <div class="flex items-center gap-2 text-xs bg-brand-violetSoft px-3 py-1.5 rounded-full border border-brand-line self-start sm:self-auto">
-                        <span class="text-brand-muted">Mode actif :</span>
-                        <span id="news-level-badge" class="font-bold text-brand-violet">High Level (Macro)</span>
-                    </div>
                 </div>
                 <p class="text-brand-muted text-md max-w-2xl leading-relaxed mt-2">Retrouvez vos signaux faibles présentés au format LinkedIn Scroll à lire et à partager.</p>
             </div>

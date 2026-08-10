@@ -12,7 +12,7 @@ Built with responsive HTML5, modern Tailwind CSS, and vanilla ES6 JavaScript to 
 - **End-to-End Watch Journey** :
   - **Dashboard Overview** : Consolidates key pipeline metrics, lists the top active signals, and shows a timeline tracker of the automated workflow.
   - **Preferences & Priorities** : Drag, swap, or reorder active topics to adjust crawler priority weights. Manage collection quotas (`MAX / MODERATE / RESTRICTED`) dynamically.
-  - **Interactive Social Feed** : A LinkedIn-style scrolling experience with contextual posts. Instantly switch reading depths (`HIGH level` for executive digests vs `LOW level` for deep technical mechanics) on the fly.
+  - **Interactive Social Feed** : A LinkedIn-style scrolling experience with contextual posts, ready to read and share.
   - **Publishing & Brand Booster** : Instantly draft curated content ready-to-copy, with templates covering LinkedIn posts, newsletters, and briefing notes.
 - **State Persistence** : Seamlessly preserves user preferences and selected topics locally inside the browser's `localStorage`.
 

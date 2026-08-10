@@ -13,16 +13,9 @@ Format JSON attendu:
 {{
   "tag": "Un mot clé (ex: IA, CLOUD, CYBER)",
   "topicId": ["{category}"], // Tableau contenant 1 ou 2 identifiants
-  "highLevel": {{
-    "linkedinHook": "Une accroche LinkedIn avec emojis, stratégique.",
-    "facts": ["Fait 1", "Fait 2"],
-    "summary": "Résumé de l'impact métier."
-  }},
-  "lowLevel": {{
-    "linkedinHook": "Accroche LinkedIn technique.",
-    "facts": ["Fait technique 1", "Fait technique 2"],
-    "summary": "Résumé de stack."
-  }}
+  "linkedinHook": "Une accroche LinkedIn avec emojis, stratégique.",
+  "facts": ["Fait 1", "Fait 2"],
+  "summary": "Résumé de l'impact métier."
 }}
 """
 

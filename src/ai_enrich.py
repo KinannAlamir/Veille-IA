@@ -60,9 +60,7 @@ def call_bedrock(content: str, title: str, category: str = "ea") -> dict:
                 "tag": "RAPPORT AGENT",
                 "topicId": category,
                 "isReport": True,
-                "reportContent": result_text,
-                "highLevel": {},
-                "lowLevel": {}
+                "reportContent": result_text
             }
 
     except ClientError as e:
@@ -71,16 +69,9 @@ def call_bedrock(content: str, title: str, category: str = "ea") -> dict:
         return {
             "tag": "ERROR",
             "topicId": "automation",
-            "highLevel": {
-                "linkedinHook": f"Error formatting",
-                "facts": ["Error processing with Bedrock"],
-                "summary": "Failed"
-            },
-            "lowLevel": {
-                "linkedinHook": f"Error formatting",
-                "facts": ["Error processing with Bedrock"],
-                "summary": "Failed"
-            }
+            "linkedinHook": "Error formatting",
+            "facts": ["Error processing with Bedrock"],
+            "summary": "Failed"
         }
 
 def format_enriched_article(idx: int, article: dict, enriched: dict) -> dict:
@@ -96,8 +87,9 @@ def format_enriched_article(idx: int, article: dict, enriched: dict) -> dict:
         "score": str(80 + idx),
         "comments": str(idx * 2),
         "shares": "0",
-        "highLevel": enriched.get("highLevel", {}),
-        "lowLevel": enriched.get("lowLevel", {}),
+        "linkedinHook": enriched.get("linkedinHook", ""),
+        "facts": enriched.get("facts", []),
+        "summary": enriched.get("summary", ""),
         "isReport": enriched.get("isReport", False),
         "reportContent": enriched.get("reportContent", "")
     }
