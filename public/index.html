@@ -105,7 +105,7 @@
                         <i data-lucide="refresh-cw" class="w-4 h-4"></i>
                         <span>Ingestion AWS IA</span>
                     </button>
-                    <p class="text-[9px] text-[#a9a0dc] text-center mt-2 leading-tight">Déclenche la Lambda de scraping et le modèle Mistral 7B manuellement.</p>
+                    <p class="text-[9px] text-[#a9a0dc] text-center mt-2 leading-tight">Déclenche la Lambda de scraping et le modèle Amazon Nova Micro manuellement.</p>
                 </div>
             </div>
         </div>
@@ -151,18 +151,18 @@
                 </div>
                 <div class="bg-brand-violetSoft text-brand-ink p-5 rounded-2xl flex flex-col justify-between shadow-sm border border-brand-line min-h-[120px]">
                     <span class="text-xs text-brand-muted font-semibold uppercase tracking-wider">Signaux cette semaine</span>
-                    <span class="font-display font-bold text-3xl mt-2 text-brand-violet select-none">48</span>
-                    <span class="text-[11px] text-brand-muted mt-1 select-none">+18% vs sem. dernière</span>
+                    <span class="font-display font-bold text-3xl mt-2 text-brand-violet select-none" id="stat-signals-count">0</span>
+                    <span class="text-[11px] text-brand-muted mt-1 select-none" id="stat-signals-delta">Toutes thématiques confondues</span>
                 </div>
                 <div class="bg-brand-green text-brand-violetDark p-5 rounded-2xl flex flex-col justify-between shadow-sm min-h-[120px]">
                     <span class="text-xs opacity-85 font-semibold uppercase tracking-wider">Sources actives</span>
-                    <span class="font-display font-bold text-3xl mt-2 select-none">26</span>
-                    <span class="text-[11px] opacity-75 mt-1 select-none">Toutes synchronisées</span>
+                    <span class="font-display font-bold text-3xl mt-2 select-none" id="stat-sources-count">0</span>
+                    <span class="text-[11px] opacity-75 mt-1 select-none" id="stat-sources-delta">Toutes synchronisées</span>
                 </div>
                 <div class="bg-white text-brand-ink p-5 rounded-2xl flex flex-col justify-between border border-brand-line shadow-sm min-h-[120px]">
-                    <span class="text-xs text-brand-muted font-semibold uppercase tracking-wider">Prochaine diffusion</span>
-                    <span class="font-display font-bold text-3xl mt-2 text-brand-violet select-none">Jeudi</span>
-                    <span class="text-[11px] text-brand-muted mt-1 select-none">Newsletter hebdomadaire</span>
+                    <span class="text-xs text-brand-muted font-semibold uppercase tracking-wider">Dernière collecte</span>
+                    <span class="font-display font-bold text-3xl mt-2 text-brand-violet select-none" id="stat-last-collection">--</span>
+                    <span class="text-[11px] text-brand-muted mt-1 select-none" id="stat-last-collection-delta">En attente de données</span>
                 </div>
             </div>
 
@@ -237,31 +237,19 @@
             </div>
 
             <div class="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
-                <!-- Left: 12 Flat Topics Selection list (7 cols) -->
-                <div class="lg:col-span-7 space-y-4">
+                <!-- 14 Flat Topics Selection list (full width : préférence/quota déplacés vers Rapports d'Agents IA) -->
+                <div class="lg:col-span-12 space-y-4">
                     <div class="flex items-baseline justify-between select-none">
                         <h2 class="font-display font-bold text-lg text-brand-ink">Thématiques de veille disponibles</h2>
-                        <span class="text-xs text-brand-muted">12 thématiques d'innovation</span>
+                        <span class="text-xs text-brand-muted" id="topics-count-label">14 thématiques d'innovation</span>
                     </div>
-                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 bg-white border border-brand-line rounded-2xl p-5 shadow-sm" id="topics-selection-grid">
-                        <!-- Populated dynamically via Javascript with 12 flat subjects -->
+                    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 bg-white border border-brand-line rounded-2xl p-5 shadow-sm" id="topics-selection-grid">
+                        <!-- Populated dynamically via Javascript with 14 flat subjects -->
                     </div>
-                </div>
-
-                <!-- Right: Preference priority ranking list (5 cols) -->
-                <div class="lg:col-span-5 bg-white border border-brand-line rounded-2xl p-5 shadow-sm space-y-4">
-                    <div>
-                        <h3 class="font-display font-bold text-lg text-brand-ink flex items-center gap-1.5">
-                            <i data-lucide="arrow-down-up" class="w-4 h-4 text-brand-violet"></i>
-                            <span>Ordre de préférence</span>
-                        </h3>
-                        <p class="text-xs text-slate-500 leading-relaxed mt-1">
-                            Ajustez la priorité de vos thématiques suivies à l'aide des flèches. Cet ordre influencera dynamiquement le volume d'actualités collectées par le robot de veille.
-                        </p>
-                    </div>
-                    <div class="space-y-2 max-h-[360px] overflow-y-auto pr-1" id="preferences-ranking-list">
-                        <!-- Populated dynamically via Javascript based on checked topics -->
-                    </div>
+                    <p class="text-xs text-brand-muted bg-brand-violetSoft border border-brand-line rounded-xl px-4 py-3 flex items-center gap-2">
+                        <i data-lucide="arrow-down-up" class="w-3.5 h-3.5 text-brand-violet flex-shrink-0"></i>
+                        Réglez l'ordre de priorité et le quota par sujet dans l'onglet <span class="font-bold text-brand-ink">« Vue Compacte »</span> des Rapports d'Agents IA.
+                    </p>
                 </div>
             </div>
 
@@ -338,7 +326,49 @@
                 <p class="text-brand-muted text-md max-w-2xl leading-relaxed">Résumés très courts de l'actualité avec possibilité de faire un <span class="font-semibold text-brand-violet">Deep-dive</span> sur les sujets intéressants générés par les agents experts (ex: M&A, Sourcing...).</p>
             </div>
 
-            <div class="bg-white border border-brand-line rounded-2xl p-6 shadow-sm min-h-[500px]">
+            <!-- Tabs: Vue Compacte (défaut) / Vue par Sujet -->
+            <div class="flex items-center gap-1 border-b border-brand-line">
+                <button type="button" id="reports-tab-btn-compact" class="px-4 py-2.5 text-sm font-bold border-b-2 border-brand-violet text-brand-violet flex items-center gap-1.5 transition-all" onclick="switchReportsTab('compact')">
+                    <i data-lucide="list" class="w-3.5 h-3.5"></i> Vue Compacte
+                </button>
+                <button type="button" id="reports-tab-btn-grouped" class="px-4 py-2.5 text-sm font-bold border-b-2 border-transparent text-slate-500 hover:text-brand-ink flex items-center gap-1.5 transition-all" onclick="switchReportsTab('grouped')">
+                    <i data-lucide="layout-grid" class="w-3.5 h-3.5"></i> Vue par Sujet
+                </button>
+            </div>
+
+            <!-- TAB 1 : Vue Compacte (15 articles max, cap par quota/sujet, onglet par défaut) -->
+            <div id="reports-tab-compact" class="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
+                <div class="lg:col-span-7 bg-white border border-brand-line rounded-2xl p-6 shadow-sm">
+                    <div class="flex items-center justify-between border-b border-slate-100 pb-4 mb-4">
+                        <h2 class="font-bold text-slate-800 flex items-center gap-2">
+                            <i data-lucide="file-text" class="w-5 h-5 text-brand-violet"></i> Synthèses de la semaine
+                        </h2>
+                        <span class="text-[10px] font-bold text-brand-muted bg-slate-50 border border-slate-200 rounded-full px-2.5 py-1" id="compact-reports-count">0 / 15 articles</span>
+                    </div>
+                    <div id="reports-compact-container" class="divide-y divide-slate-100">
+                        <!-- Javascript will render the compact 1-2 page list here -->
+                    </div>
+                </div>
+
+                <!-- Ordre de préférence (déplacé depuis "Choix des sujets") : pilote le quota par sujet de la Vue Compacte -->
+                <div class="lg:col-span-5 bg-white border border-brand-line rounded-2xl p-5 shadow-sm space-y-4">
+                    <div>
+                        <h3 class="font-display font-bold text-lg text-brand-ink flex items-center gap-1.5">
+                            <i data-lucide="arrow-down-up" class="w-4 h-4 text-brand-violet"></i>
+                            <span>Ordre de préférence</span>
+                        </h3>
+                        <p class="text-xs text-slate-500 leading-relaxed mt-1">
+                            Ajustez la priorité et le quota de vos thématiques suivies : cela détermine directement le nombre d'articles retenus par sujet dans la Vue Compacte ci-contre.
+                        </p>
+                    </div>
+                    <div class="space-y-2 max-h-[420px] overflow-y-auto pr-1" id="preferences-ranking-list">
+                        <!-- Populated dynamically via Javascript based on checked topics -->
+                    </div>
+                </div>
+            </div>
+
+            <!-- TAB 2 : Vue par Sujet (accordéon groupé, existant) -->
+            <div id="reports-tab-grouped" class="hidden bg-white border border-brand-line rounded-2xl p-6 shadow-sm min-h-[500px]">
                 <div class="flex items-center justify-between border-b border-slate-100 pb-4 mb-6">
                     <h2 class="font-bold text-slate-800 flex items-center gap-2">
                         <i data-lucide="file-text" class="w-5 h-5 text-brand-violet"></i> Synthèses de la semaine

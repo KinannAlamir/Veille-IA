@@ -20,6 +20,38 @@ const TOPICS_LIST = [
     { id: "fow_data_ai", label: "Data Dev & AI Capabilities", desc: "Briques techno applicatives, gestion des données et modèles de fondation" }
 ];
 
+// Liste des sources de veille réellement utilisées par le scraper (miroir de src/config.py SOURCES_BY_TOPIC)
+const SOURCES_LIST = [
+    { name: "Hacker News (RSS)", type: "rss" },
+    { name: "HackerNews Web", type: "web" },
+    { name: "Martin Fowler", type: "rss" },
+    { name: "The New Stack", type: "web" },
+    { name: "The Register - Data Centre", type: "rss" },
+    { name: "Cisco Blogs", type: "rss" },
+    { name: "Cloudflare Blog", type: "web" },
+    { name: "CIO.com", type: "rss" },
+    { name: "The Register - Cloud", type: "rss" },
+    { name: "DevOps.com", type: "rss" },
+    { name: "Kubernetes Blog", type: "rss" },
+    { name: "LeMagIT", type: "rss" },
+    { name: "Silicon.fr", type: "rss" },
+    { name: "FinOps Foundation", type: "rss" },
+    { name: "GreenIT.fr", type: "rss" },
+    { name: "AWS What's New", type: "rss" },
+    { name: "Azure Updates", type: "rss" },
+    { name: "Google Cloud Blog", type: "rss" },
+    { name: "AI News", type: "rss" },
+    { name: "OpenAI Blog", type: "rss" },
+    { name: "Quantum Computing Report", type: "rss" },
+    { name: "Petri IT Knowledgebase", type: "rss" },
+    { name: "Zoom Blog", type: "rss" },
+    { name: "ITSM.tools", type: "rss" },
+    { name: "The Hacker News", type: "rss" },
+    { name: "Krebs on Security", type: "rss" },
+    { name: "Towards Data Science", type: "rss" },
+    { name: "Hugging Face Blog", type: "web" }
+];
+
 // Alias des anciens identifiants de catégorie (agents historiques) vers les 14 sujets canoniques
 // de "Choix des sujets", pour que les rapports plus anciens restent rattachés à un sujet affiché.
 const LEGACY_TOPIC_ALIASES = {
@@ -37,7 +69,7 @@ async function loadMockData() {
     try {
         // Remplacer "VOTRE_URL_DE_LAMBDA" par l'URL Function URL une fois déployée.
         // Pour le moment en attendant l'URL, on simule en local.
-        const API_URL = 'https://puxvcvasttxwh7rkbivf2cavsm0effqy.lambda-url.eu-west-2.on.aws/'; // Demain: 'https://xxxxx.lambda-url.eu-west-1.on.aws/'
+        const API_URL = 'https://f7757ki4wfjhbodks66xswr6pq0juqtp.lambda-url.eu-west-2.on.aws/'; // Demain: 'https://xxxxx.lambda-url.eu-west-1.on.aws/'
         
         const response = await fetch(API_URL);
         if (!response.ok) {
@@ -57,7 +89,7 @@ async function loadMockData() {
 
 // Global Ingestion Trigger
 window.forceIngestion = async function() {
-    const INGESTION_LAMBDA_URL = 'https://tzhjgpcakz7is3qa7a2zw3hu7m0zwsur.lambda-url.eu-west-2.on.aws/'; 
+    const INGESTION_LAMBDA_URL = 'https://v22m27gcm2c6mcbm7vrtadcgve0fovvh.lambda-url.eu-west-2.on.aws/'; 
     if (!INGESTION_LAMBDA_URL) {
         showToast("Erreur : L'URL de votre fonction Lambda d'ingestion (Étape 4) n'est pas configurée dans app.js à la ligne 41.", "alert-circle", "red");
         return;
@@ -70,17 +102,21 @@ window.forceIngestion = async function() {
         lucide.createIcons();
     }
 
-    showToast("AWS : Scraping et inférence Mistral 7B en cours... Cela prend environ 10-15 secondes.", "bot", "indigo");
+    showToast("AWS : Scraping et inférence Amazon Nova Micro en cours... Cela prend environ 10-15 secondes.", "bot", "indigo");
 
     try {
         const res = await fetch(INGESTION_LAMBDA_URL, { method: 'POST' });
         if(res.ok) {
             const data = await res.json();
-            showToast(`Ingestion terminée avec succès ! ${data.processed} ajouts, ${data.skipped} ignorés.`, "check-circle", "emerald");
-            // Reload global data matching database update
-            setTimeout(() => {
-                location.reload();
-            }, 2000);
+            if (data.cooldown_active) {
+                showToast(`Ingestion déjà lancée récemment. Prochain essai possible dans ${data.cooldown_remaining_minutes} min.`, "clock", "amber");
+            } else {
+                showToast(`Ingestion terminée avec succès ! ${data.processed} ajouts, ${data.skipped} ignorés.`, "check-circle", "emerald");
+                // Reload global data matching database update
+                setTimeout(() => {
+                    location.reload();
+                }, 2000);
+            }
         } else {
             showToast(`Erreur HTTP Serveur AWS : ${res.status}`, "alert-circle", "red");
         }
@@ -218,6 +254,47 @@ function updateBadgeCounts() {
     if (statTopicsCountEl) statTopicsCountEl.textContent = count;
     const totalTopics = TOPICS_LIST.length;
     if (statTopicsDeltaEl) statTopicsDeltaEl.textContent = count === totalTopics ? "Tous suivis" : `${count} / ${totalTopics} actifs`;
+
+    // Signaux cette semaine : nombre réel d'articles dont la date tombe dans les 7 derniers jours
+    const weeklySignals = NEWSByLevel.filter(n => getArticlePeriod(n.date) === "Cette semaine");
+    const statSignalsCountEl = document.getElementById("stat-signals-count");
+    const statSignalsDeltaEl = document.getElementById("stat-signals-delta");
+    if (statSignalsCountEl) statSignalsCountEl.textContent = weeklySignals.length || NEWSByLevel.length;
+    if (statSignalsDeltaEl) {
+        const reportsCount = weeklySignals.filter(n => n.isReport).length;
+        statSignalsDeltaEl.textContent = reportsCount > 0 ? `dont ${reportsCount} rapport${reportsCount > 1 ? 's' : ''} agent` : "Toutes thématiques confondues";
+    }
+
+    // Sources actives : nombre réel de flux RSS + sites suivis par le scraper
+    const statSourcesCountEl = document.getElementById("stat-sources-count");
+    const statSourcesDeltaEl = document.getElementById("stat-sources-delta");
+    if (statSourcesCountEl) statSourcesCountEl.textContent = SOURCES_LIST.length;
+    if (statSourcesDeltaEl) {
+        const rssCount = SOURCES_LIST.filter(s => s.type === "rss").length;
+        const webCount = SOURCES_LIST.filter(s => s.type === "web").length;
+        statSourcesDeltaEl.textContent = `${rssCount} flux RSS · ${webCount} sites`;
+    }
+
+    // Dernière collecte : timestamp réel le plus récent parmi les articles ingérés (ingestedAt),
+    // avec repli sur la date de l'article si l'ingestedAt n'est pas disponible (ex: jeux de test locaux)
+    const statLastCollectionEl = document.getElementById("stat-last-collection");
+    const statLastCollectionDeltaEl = document.getElementById("stat-last-collection-delta");
+    if (statLastCollectionEl) {
+        const timestamps = NEWSByLevel
+            .map(n => new Date(n.ingestedAt || n.date))
+            .filter(d => !isNaN(d));
+
+        if (timestamps.length > 0) {
+            const lastCollection = new Date(Math.max(...timestamps.map(d => d.getTime())));
+            statLastCollectionEl.textContent = lastCollection.toLocaleDateString('fr-FR', { day: 'numeric', month: 'short' });
+            if (statLastCollectionDeltaEl) {
+                statLastCollectionDeltaEl.textContent = `${lastCollection.toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit' })} · Ingestion auto`;
+            }
+        } else {
+            statLastCollectionEl.textContent = "--";
+            if (statLastCollectionDeltaEl) statLastCollectionDeltaEl.textContent = "Aucune collecte enregistrée";
+        }
+    }
 }
 
 // Switch styles of Sidebar Reading Level buttons
@@ -241,11 +318,14 @@ function switchReadingLevelElementStyles() {
     }
 }
 
-// 5. Render list of 12 topics (Topics selection list on Choosing Subjects)
+// 5. Render list of 14 topics (Topics selection list on Choosing Subjects)
 function initTopics() {
     const gridContainer = document.getElementById("topics-selection-grid");
     if (!gridContainer) return;
-    
+
+    const countLabelEl = document.getElementById("topics-count-label");
+    if (countLabelEl) countLabelEl.textContent = `${TOPICS_LIST.length} thématiques d'innovation`;
+
     gridContainer.innerHTML = ""; // Clear
     
     TOPICS_LIST.forEach(topic => {
@@ -422,6 +502,7 @@ window.movePriority = function(topicId, direction) {
     saveState();
     updateBadgeCounts();
     renderPreferencesList();
+    populateCompactReports();
     
     // Alert nicely
     showToast(`Priorité ajustée pour ${TOPICS_LIST.find(t => t.id === topicId).label} !`, "arrow-down-up", "indigo");
@@ -611,10 +692,36 @@ function renderPage() {
     } else if (state.activePage === "reports") {
         populateReportFilters();
         populateReports();
+        populateCompactReports();
+        renderPreferencesList();
+        switchReportsTab(reportsActiveTab);
     }
 }
 
 // --- NEW FEATURE: REPORTS VIEW ---
+
+// Onglet actif de la page Rapports d'Agents IA ("compact" par défaut, ou "grouped")
+let reportsActiveTab = "compact";
+
+// Bascule entre la Vue Compacte (onglet 1, par défaut) et la Vue par Sujet (onglet 2)
+window.switchReportsTab = function(tab) {
+    reportsActiveTab = tab;
+
+    const activeCls = "px-4 py-2.5 text-sm font-bold border-b-2 border-brand-violet text-brand-violet flex items-center gap-1.5 transition-all";
+    const inactiveCls = "px-4 py-2.5 text-sm font-bold border-b-2 border-transparent text-slate-500 hover:text-brand-ink flex items-center gap-1.5 transition-all";
+
+    const compactBtn = document.getElementById("reports-tab-btn-compact");
+    const groupedBtn = document.getElementById("reports-tab-btn-grouped");
+    const compactPanel = document.getElementById("reports-tab-compact");
+    const groupedPanel = document.getElementById("reports-tab-grouped");
+
+    if (compactBtn) compactBtn.className = tab === "compact" ? activeCls : inactiveCls;
+    if (groupedBtn) groupedBtn.className = tab === "grouped" ? activeCls : inactiveCls;
+    if (compactPanel) compactPanel.classList.toggle("hidden", tab !== "compact");
+    if (groupedPanel) groupedPanel.classList.toggle("hidden", tab !== "grouped");
+
+    lucide.createIcons();
+};
 
 function populateReportFilters() {
     const filterSelect = document.getElementById("report-topic-filter");
@@ -648,6 +755,92 @@ function getOneLineSummary(report) {
         sentence = sentence.slice(0, 147).trim() + "…";
     }
     return sentence;
+}
+
+// Nombre maximal d'articles affichés au total dans la Vue Compacte (1-2 pages)
+const COMPACT_REPORTS_MAX = 15;
+
+// Convertit le quota qualitatif choisi dans "Ordre de préférence" en plafond numérique d'articles.
+// Le quota est un plafond strict : s'il y a moins d'articles disponibles que le quota, on affiche
+// uniquement les articles disponibles (jamais de remplissage/duplication artificiel).
+function getTopicQuotaLimit(topicId) {
+    const quota = state.topicQuotas[topicId] || "high";
+    if (quota === "high") return 5;
+    if (quota === "medium") return 2;
+    return 1; // low
+}
+
+// Résumé très concis (3 lignes maximum à l'affichage) pour la Vue Compacte
+function getCompactSummary(report) {
+    const raw = (report.reportContent || report.title || "")
+        .replace(/[#*_`>]/g, "")
+        .replace(/\n+/g, " ")
+        .trim();
+
+    if (!raw) return "Résumé indisponible.";
+    return raw.length > 280 ? raw.slice(0, 277).trim() + "…" : raw;
+}
+
+// Onglet 1 "Vue Compacte" : max 15 articles au total, plafonnés par sujet selon le quota choisi
+// dans "Ordre de préférence", et respectant l'ordre de priorité des sujets suivis.
+function populateCompactReports() {
+    const container = document.getElementById("reports-compact-container");
+    const counterEl = document.getElementById("compact-reports-count");
+    if (!container) return;
+
+    const allReports = NEWSByLevel.filter(news => news.isReport);
+    const picked = [];
+
+    for (const topicId of state.selectedTopics) {
+        if (picked.length >= COMPACT_REPORTS_MAX) break;
+
+        const quotaLimit = getTopicQuotaLimit(topicId);
+        const topicReports = allReports
+            .filter(r => getNewsTopics(r).includes(topicId))
+            .sort((a, b) => new Date(b.date) - new Date(a.date));
+
+        // Le quota est un plafond : on ne prend jamais plus que ce qui est réellement disponible
+        const remainingSlots = COMPACT_REPORTS_MAX - picked.length;
+        const take = Math.min(quotaLimit, topicReports.length, remainingSlots);
+
+        for (let i = 0; i < take; i++) {
+            picked.push(topicReports[i]);
+        }
+    }
+
+    if (counterEl) counterEl.textContent = `${picked.length} / ${COMPACT_REPORTS_MAX} articles`;
+
+    if (picked.length === 0) {
+        container.innerHTML = `
+            <div class="py-12 text-center text-xs text-brand-muted flex flex-col items-center justify-center gap-2">
+                <i data-lucide="ghost" class="w-10 h-10 text-slate-200"></i>
+                <p class="font-bold text-slate-700 text-sm">Aucun rapport texte disponible</p>
+                <p class="max-w-md mt-0.5">Aucun sujet suivi n'a encore généré de rapport cette semaine. Activez d'autres thématiques ou déclenchez l'ingestion.</p>
+            </div>
+        `;
+        lucide.createIcons();
+        return;
+    }
+
+    container.innerHTML = picked.map(report => {
+        const dateObj = new Date(report.date);
+        const dateStr = isNaN(dateObj)
+            ? report.date
+            : dateObj.toLocaleDateString('fr-FR', { day: 'numeric', month: 'long', year: 'numeric' });
+
+        return `
+            <div class="py-4 first:pt-0 last:pb-0">
+                <div class="flex items-center gap-2 mb-1">
+                    <span class="inline-block px-2 py-0.5 bg-brand-violetSoft text-brand-violetDark text-[9px] font-extrabold rounded uppercase tracking-wider">${report.tag}</span>
+                    <span class="text-[10px] text-slate-400 font-medium">${dateStr}</span>
+                </div>
+                <h3 class="font-display font-bold text-sm text-slate-900">${report.title}</h3>
+                <p class="text-xs text-slate-500 mt-1 leading-relaxed line-clamp-3">${getCompactSummary(report)}</p>
+            </div>
+        `;
+    }).join("");
+
+    lucide.createIcons();
 }
 
 // Génère le HTML d'une carte de rapport individuelle (avec Deep-dive dépliable)
@@ -785,6 +978,21 @@ function getNewsTopics(news) {
     if (!news.topicId) return [];
     const raw = Array.isArray(news.topicId) ? news.topicId : [news.topicId];
     return raw.map(id => LEGACY_TOPIC_ALIASES[id] || id);
+}
+
+// Dérive le vrai statut temporel ("Cette semaine" / "Ce mois-ci" / "Plus ancien") depuis la date réelle
+// de l'article plutôt que de se fier au champ "period" figé une fois pour toutes à l'ingestion.
+function getArticlePeriod(dateStr) {
+    if (!dateStr || dateStr === "Aujourd'hui") return "Cette semaine";
+
+    const parsed = new Date(dateStr);
+    if (isNaN(parsed)) return "Cette semaine"; // Format de date inconnu : on suppose un ajout récent
+
+    const diffDays = (Date.now() - parsed.getTime()) / (1000 * 60 * 60 * 24);
+    if (diffDays < 0) return "Cette semaine"; // Date future (fuseau horaire) : on la traite comme récente
+    if (diffDays <= 7) return "Cette semaine";
+    if (diffDays <= 30) return "Ce mois-ci";
+    return "Plus ancien";
 }
 
 // Helper to get the best priority index among all topics of an article
@@ -966,9 +1174,9 @@ function populateNewsFeed() {
         filtered = filtered.filter(news => getNewsTopics(news).includes(selTopic));
     }
 
-    // Period mapping filtering
+    // Period mapping filtering (basé sur la date réelle de l'article, pas un champ figé)
     if (selPeriod !== "Tout") {
-        filtered = filtered.filter(news => news.period === selPeriod);
+        filtered = filtered.filter(news => getArticlePeriod(news.date) === selPeriod);
     }
 
     // Word search filtering
@@ -1348,6 +1556,8 @@ function showToast(message, iconName = "info", color = "indigo") {
         toast.style.borderLeftColor = "#00df80";
     } else if (color === "red") {
         toast.style.borderLeftColor = "#ef4444";
+    } else if (color === "amber") {
+        toast.style.borderLeftColor = "#f59e0b";
     }
 
     toast.innerHTML = `

@@ -11,6 +11,12 @@ from src.agent_prompts import get_agent_prompt
 
 logger = logging.getLogger(__name__)
 
+# Vérifiez Bedrock > Model access dans cette région pour Amazon Nova Micro. Si indisponible en
+# invocation directe, utilisez le profil d'inférence cross-region "eu.amazon.nova-micro-v1:0"
+# ou changez BEDROCK_REGION (ex: us-east-1).
+BEDROCK_REGION = "eu-west-3"
+MODEL_ID = "amazon.nova-micro-v1:0"
+
 def load_scraped_data(file_path: str) -> list[dict]:
     """Loads scraped data from JSON file."""
     try:
@@ -24,37 +30,25 @@ def load_scraped_data(file_path: str) -> list[dict]:
         return []
 
 def call_bedrock(content: str, title: str, category: str = "ea") -> dict:
-    """Calls Amazon Bedrock using Mistral 7B for cost-effective enrichment."""
+    """Calls Amazon Bedrock using Nova Micro (Converse API) for cost-effective enrichment."""
     logger.info(f"Calling Bedrock for: {title}")
-    
-    # On pointe sur la région Paris où vous avez Mistral
-    bedrock = boto3.client(service_name='bedrock-runtime', region_name="eu-west-3")
-    
-    # Utilisation de Mistral 7B Instruct
-    model_id = "mistral.mistral-7b-instruct-v0:2"
-    
+
+    bedrock = boto3.client(service_name='bedrock-runtime', region_name=BEDROCK_REGION)
+
     # Si on transmet un sujet clé (ma, sourcing...), on génère le Custom Prompt.
     # Pour simuler sur le poste de test, je limite le formatage à un de vos agents.
     prompt = get_agent_prompt(category)
     prompt += f"\n\nTEXTE À ANALYSER (Titre: {title}):\n{content[:2000]}"
 
-    mistral_prompt = f"<s>[INST] {prompt} [/INST]"
-
-    request_body = {
-        "prompt": mistral_prompt,
-        "max_tokens": 1024,
-        "temperature": 0.5
-    }
-
+    result_text = ""
     try:
-        response = bedrock.invoke_model(
-            modelId=model_id,
-            body=json.dumps(request_body)
+        response = bedrock.converse(
+            modelId=MODEL_ID,
+            messages=[{"role": "user", "content": [{"text": prompt}]}],
+            inferenceConfig={"maxTokens": 1024, "temperature": 0.5}
         )
-        
-        response_body = json.loads(response.get('body').read())
-        result_text = response_body.get("outputs")[0].get("text")
-        
+        result_text = response["output"]["message"]["content"][0]["text"]
+
         try:
             enriched_data = json.loads(result_text)
             return enriched_data
@@ -70,7 +64,7 @@ def call_bedrock(content: str, title: str, category: str = "ea") -> dict:
                 "highLevel": {},
                 "lowLevel": {}
             }
-        
+
     except ClientError as e:
         logger.error(f"AWS Bedrock error: {e}")
         # Fallback to mock format if Bedrock fails
@@ -88,22 +82,6 @@ def call_bedrock(content: str, title: str, category: str = "ea") -> dict:
                 "summary": "Failed"
             }
         }
-    except json.JSONDecodeError as e:
-         logger.error(f"LLM returned invalid JSON: {e}. Raw response: {result_text}")
-         return {
-            "tag": "PARSE_ERROR",
-            "topicId": "automation",
-            "highLevel": {
-                "linkedinHook": f"Parse error",
-                "facts": ["Model did not return valid JSON"],
-                "summary": "Failed"
-            },
-            "lowLevel": {
-                "linkedinHook": f"Parse error",
-                "facts": ["Model did not return valid JSON"],
-                "summary": "Failed"
-            }
-        }
 
 def format_enriched_article(idx: int, article: dict, enriched: dict) -> dict:
     """Formats the final document for the UI."""
@@ -116,7 +94,6 @@ def format_enriched_article(idx: int, article: dict, enriched: dict) -> dict:
         "source": "RSS Scraper",
         "date": "Aujourd'hui", 
         "score": str(80 + idx),
-        "period": "Cette semaine",
         "comments": str(idx * 2),
         "shares": "0",
         "highLevel": enriched.get("highLevel", {}),

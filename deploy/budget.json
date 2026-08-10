@@ -1,0 +1,6 @@
+{
+  "BudgetName": "VeilleIA-Monthly-20EUR",
+  "BudgetLimit": { "Amount": "45", "Unit": "USD" },
+  "TimeUnit": "ANNUALLY",
+  "BudgetType": "COST"
+}

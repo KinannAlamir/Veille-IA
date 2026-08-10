@@ -1,4 +1,7 @@
 # -*- coding: utf-8 -*-
+# Copie locale de src/agent_prompts.py : ce fichier doit rester déployé à plat aux côtés
+# de ingest_articles.py dans le zip Lambda (pas d'import du package "src" à l'exécution).
+# Toute modification doit être répercutée dans les deux fichiers.
 import logging
 
 logger = logging.getLogger(__name__)
@@ -333,13 +336,13 @@ def get_agent_prompt(category: str) -> str:
     try:
         clean_category = str(category).lower().strip().replace(" ", "_")
         prompt = AGENT_PROMPTS_MAP.get(clean_category)
-        
+
         if prompt:
             return prompt
         else:
             logger.warning(f"Catégorie non trouvée dans les prompts : '{clean_category}'. Déclenchement du Fallback.")
             return DEFAULT_PROMPT.format(category=clean_category)
-            
+
     except Exception as e:
         logger.error(f"Erreur lors de la récupération du Prompt IA pour '{category}': {e}")
         return DEFAULT_PROMPT.format(category=str(category))

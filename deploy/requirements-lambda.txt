@@ -1,0 +1,6 @@
+# Runtime dependencies for the ingest_articles Lambda ONLY.
+# boto3/botocore are already provided by the AWS Lambda Python runtime - do not bundle them
+# (it would triple the package size for nothing). get_articles Lambda needs no dependencies at all.
+feedparser==6.0.12
+httpx==0.28.1
+beautifulsoup4==4.15.0
