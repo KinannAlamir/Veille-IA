@@ -3,21 +3,24 @@
  */
 
 // 1. Flat List of Topics
+// Chaque sujet porte une icône Lucide + une couleur Tailwind dédiées, utilisées partout dans
+// l'interface (grille de sélection, badges, groupes de rapports...) pour une identification
+// visuelle rapide sans dépendre du texte du libellé.
 const TOPICS_LIST = [
-    { id: "arch_design", label: "Architecture & Design", desc: "API, Data platform, Event-Driven, Microservices, SASE, SAP, Archi d'entreprise" },
-    { id: "infra_conn", label: "Infrastructure & Connectivity", desc: "Compute, Storage, Virtualization, SDWAN, 5G / LEO, Smart Connectivity" },
-    { id: "cloud_adopt", label: "Cloud Adoption & IT Programs", desc: "Move 2 cloud, TOM Cloud, Schéma directeur, Réversibilité & Sourcing" },
-    { id: "auto_ops_sre", label: "Automation, Ops & SRE", desc: "DevOps, SRE, Kubernetes, Terraform, CI/CD, Observabilité" },
-    { id: "sovereignty_resilience", label: "Souveraineté & Résilience", desc: "Cloud de confiance, SecNumCloud, Cloud Security, SecOps, VMware" },
-    { id: "sustech_finops", label: "Sustech & FinOps", desc: "Greenops, Finops / coûts, GreenIT, Cloud Sustainability" },
-    { id: "hyperscalers", label: "Hyperscalers", desc: "Innovation et annonces AWS, Azure, GCP" },
-    { id: "ai", label: "Intelligence Artificielle", desc: "GenAI, MLOps, AI Governance" },
-    { id: "quantum", label: "Quantum Computing", desc: "Post-Quantum Crypto, Quantum Algorithms, QPU Infrastructure" },
-    { id: "fow_modern_workplace", label: "Modern Workplace & Infra", desc: "Périmètre matériel, réseau, environnement physique/hybride et gestion de flotte" },
-    { id: "fow_comm_collab", label: "Communication et Collab", desc: "Outils d'échange, visioconférence, voix, messagerie d'entreprise" },
-    { id: "fow_nextgen_support", label: "Next Gen IT Support", desc: "Assistance utilisateurs, résolution incidents, automatisation des tickets" },
-    { id: "fow_cyber_compliance", label: "Cyber, Identity & Compliance", desc: "Sécurité des accès, protection des données, règles légales IT" },
-    { id: "fow_data_ai", label: "Data Dev & AI Capabilities", desc: "Briques techno applicatives, gestion des données et modèles de fondation" }
+    { id: "arch_design", label: "Architecture & Design", desc: "API, Data platform, Event-Driven, Microservices, SASE, SAP, Archi d'entreprise", icon: "layout-template", color: "violet" },
+    { id: "infra_conn", label: "Infrastructure & Connectivity", desc: "Compute, Storage, Virtualization, SDWAN, 5G / LEO, Smart Connectivity", icon: "server", color: "blue" },
+    { id: "cloud_adopt", label: "Cloud Adoption & IT Programs", desc: "Move 2 cloud, TOM Cloud, Schéma directeur, Réversibilité & Sourcing", icon: "cloud", color: "sky" },
+    { id: "auto_ops_sre", label: "Automation, Ops & SRE", desc: "DevOps, SRE, Kubernetes, Terraform, CI/CD, Observabilité", icon: "settings", color: "teal" },
+    { id: "sovereignty_resilience", label: "Souveraineté & Résilience", desc: "Cloud de confiance, SecNumCloud, Cloud Security, SecOps, VMware", icon: "shield-check", color: "emerald" },
+    { id: "sustech_finops", label: "Sustech & FinOps", desc: "Greenops, Finops / coûts, GreenIT, Cloud Sustainability", icon: "leaf", color: "lime" },
+    { id: "hyperscalers", label: "Hyperscalers", desc: "Innovation et annonces AWS, Azure, GCP", icon: "boxes", color: "amber" },
+    { id: "ai", label: "Intelligence Artificielle", desc: "GenAI, MLOps, AI Governance", icon: "brain-circuit", color: "fuchsia" },
+    { id: "quantum", label: "Quantum Computing", desc: "Post-Quantum Crypto, Quantum Algorithms, QPU Infrastructure", icon: "atom", color: "purple" },
+    { id: "fow_modern_workplace", label: "Modern Workplace & Infra", desc: "Périmètre matériel, réseau, environnement physique/hybride et gestion de flotte", icon: "monitor", color: "cyan" },
+    { id: "fow_comm_collab", label: "Communication et Collab", desc: "Outils d'échange, visioconférence, voix, messagerie d'entreprise", icon: "message-circle", color: "indigo" },
+    { id: "fow_nextgen_support", label: "Next Gen IT Support", desc: "Assistance utilisateurs, résolution incidents, automatisation des tickets", icon: "life-buoy", color: "orange" },
+    { id: "fow_cyber_compliance", label: "Cyber, Identity & Compliance", desc: "Sécurité des accès, protection des données, règles légales IT", icon: "shield-alert", color: "rose" },
+    { id: "fow_data_ai", label: "Data Dev & AI Capabilities", desc: "Briques techno applicatives, gestion des données et modèles de fondation", icon: "database", color: "pink" }
 ];
 
 // Liste des sources de veille réellement utilisées par le scraper (miroir de src/config.py SOURCES_BY_TOPIC)
@@ -60,6 +63,15 @@ const LEGACY_TOPIC_ALIASES = {
     ma: "hyperscalers",
     smartflow: "fow_nextgen_support"
 };
+
+// Renvoie {icon, color, label} pour un sujet donné, avec un repli neutre si l'id est inconnu
+// (n'expose jamais l'id technique brut sur le front, uniquement le libellé lisible).
+function getTopicVisual(topicId) {
+    const topic = TOPICS_LIST.find(t => t.id === topicId);
+    return topic
+        ? { icon: topic.icon, color: topic.color, label: topic.label }
+        : { icon: "tag", color: "slate", label: "Sujet" };
+}
 
 // 2. LinkedIn Feed News Database (Supporting dual-state High & Low reading levels)
 let NEWSByLevel = []; // Sera rempli par le fetch local ou API Cloud
@@ -337,7 +349,12 @@ function initTopics() {
         div.innerHTML = `
             <input type="checkbox" class="styled-checkbox mt-0.5" id="topic-cb-${topic.id}" ${isChecked ? 'checked' : ''}>
             <div class="flex-1">
-                <label for="topic-cb-${topic.id}" class="block text-xs font-bold text-brand-ink cursor-pointer">${topic.label}</label>
+                <div class="flex items-center gap-2 mb-1">
+                    <span class="w-6 h-6 rounded-lg bg-${topic.color}-50 text-${topic.color}-600 flex items-center justify-center flex-shrink-0">
+                        <i data-lucide="${topic.icon}" class="w-3.5 h-3.5"></i>
+                    </span>
+                    <label for="topic-cb-${topic.id}" class="block text-xs font-bold text-brand-ink cursor-pointer">${topic.label}</label>
+                </div>
                 <p class="text-[11px] text-brand-muted leading-relaxed mt-0.5">${topic.desc}</p>
             </div>
         `;
@@ -428,6 +445,9 @@ function renderPreferencesList() {
             <div class="flex items-start justify-between gap-3">
                 <div class="flex items-center gap-2.5">
                     <span class="text-xs font-display font-bold text-brand-violet select-none">#${index + 1}</span>
+                    <span class="w-6 h-6 rounded-lg bg-${topic.color}-50 text-${topic.color}-600 flex items-center justify-center flex-shrink-0">
+                        <i data-lucide="${topic.icon}" class="w-3.5 h-3.5"></i>
+                    </span>
                     <div>
                         <h4 class="text-xs font-bold text-brand-ink select-none">${topic.label}</h4>
                     </div>
@@ -502,7 +522,6 @@ window.movePriority = function(topicId, direction) {
     saveState();
     updateBadgeCounts();
     renderPreferencesList();
-    populateCompactReports();
     
     // Alert nicely
     showToast(`Priorité ajustée pour ${TOPICS_LIST.find(t => t.id === topicId).label} !`, "arrow-down-up", "indigo");
@@ -692,36 +711,10 @@ function renderPage() {
     } else if (state.activePage === "reports") {
         populateReportFilters();
         populateReports();
-        populateCompactReports();
-        renderPreferencesList();
-        switchReportsTab(reportsActiveTab);
     }
 }
 
 // --- NEW FEATURE: REPORTS VIEW ---
-
-// Onglet actif de la page Rapports d'Agents IA ("compact" par défaut, ou "grouped")
-let reportsActiveTab = "compact";
-
-// Bascule entre la Vue Compacte (onglet 1, par défaut) et la Vue par Sujet (onglet 2)
-window.switchReportsTab = function(tab) {
-    reportsActiveTab = tab;
-
-    const activeCls = "px-4 py-2.5 text-sm font-bold border-b-2 border-brand-violet text-brand-violet flex items-center gap-1.5 transition-all";
-    const inactiveCls = "px-4 py-2.5 text-sm font-bold border-b-2 border-transparent text-slate-500 hover:text-brand-ink flex items-center gap-1.5 transition-all";
-
-    const compactBtn = document.getElementById("reports-tab-btn-compact");
-    const groupedBtn = document.getElementById("reports-tab-btn-grouped");
-    const compactPanel = document.getElementById("reports-tab-compact");
-    const groupedPanel = document.getElementById("reports-tab-grouped");
-
-    if (compactBtn) compactBtn.className = tab === "compact" ? activeCls : inactiveCls;
-    if (groupedBtn) groupedBtn.className = tab === "grouped" ? activeCls : inactiveCls;
-    if (compactPanel) compactPanel.classList.toggle("hidden", tab !== "compact");
-    if (groupedPanel) groupedPanel.classList.toggle("hidden", tab !== "grouped");
-
-    lucide.createIcons();
-};
 
 function populateReportFilters() {
     const filterSelect = document.getElementById("report-topic-filter");
@@ -755,92 +748,6 @@ function getOneLineSummary(report) {
         sentence = sentence.slice(0, 147).trim() + "…";
     }
     return sentence;
-}
-
-// Nombre maximal d'articles affichés au total dans la Vue Compacte (1-2 pages)
-const COMPACT_REPORTS_MAX = 15;
-
-// Convertit le quota qualitatif choisi dans "Ordre de préférence" en plafond numérique d'articles.
-// Le quota est un plafond strict : s'il y a moins d'articles disponibles que le quota, on affiche
-// uniquement les articles disponibles (jamais de remplissage/duplication artificiel).
-function getTopicQuotaLimit(topicId) {
-    const quota = state.topicQuotas[topicId] || "high";
-    if (quota === "high") return 5;
-    if (quota === "medium") return 2;
-    return 1; // low
-}
-
-// Résumé très concis (3 lignes maximum à l'affichage) pour la Vue Compacte
-function getCompactSummary(report) {
-    const raw = (report.reportContent || report.title || "")
-        .replace(/[#*_`>]/g, "")
-        .replace(/\n+/g, " ")
-        .trim();
-
-    if (!raw) return "Résumé indisponible.";
-    return raw.length > 280 ? raw.slice(0, 277).trim() + "…" : raw;
-}
-
-// Onglet 1 "Vue Compacte" : max 15 articles au total, plafonnés par sujet selon le quota choisi
-// dans "Ordre de préférence", et respectant l'ordre de priorité des sujets suivis.
-function populateCompactReports() {
-    const container = document.getElementById("reports-compact-container");
-    const counterEl = document.getElementById("compact-reports-count");
-    if (!container) return;
-
-    const allReports = NEWSByLevel.filter(news => news.isReport);
-    const picked = [];
-
-    for (const topicId of state.selectedTopics) {
-        if (picked.length >= COMPACT_REPORTS_MAX) break;
-
-        const quotaLimit = getTopicQuotaLimit(topicId);
-        const topicReports = allReports
-            .filter(r => getNewsTopics(r).includes(topicId))
-            .sort((a, b) => new Date(b.date) - new Date(a.date));
-
-        // Le quota est un plafond : on ne prend jamais plus que ce qui est réellement disponible
-        const remainingSlots = COMPACT_REPORTS_MAX - picked.length;
-        const take = Math.min(quotaLimit, topicReports.length, remainingSlots);
-
-        for (let i = 0; i < take; i++) {
-            picked.push(topicReports[i]);
-        }
-    }
-
-    if (counterEl) counterEl.textContent = `${picked.length} / ${COMPACT_REPORTS_MAX} articles`;
-
-    if (picked.length === 0) {
-        container.innerHTML = `
-            <div class="py-12 text-center text-xs text-brand-muted flex flex-col items-center justify-center gap-2">
-                <i data-lucide="ghost" class="w-10 h-10 text-slate-200"></i>
-                <p class="font-bold text-slate-700 text-sm">Aucun rapport texte disponible</p>
-                <p class="max-w-md mt-0.5">Aucun sujet suivi n'a encore généré de rapport cette semaine. Activez d'autres thématiques ou déclenchez l'ingestion.</p>
-            </div>
-        `;
-        lucide.createIcons();
-        return;
-    }
-
-    container.innerHTML = picked.map(report => {
-        const dateObj = new Date(report.date);
-        const dateStr = isNaN(dateObj)
-            ? report.date
-            : dateObj.toLocaleDateString('fr-FR', { day: 'numeric', month: 'long', year: 'numeric' });
-
-        return `
-            <div class="py-4 first:pt-0 last:pb-0">
-                <div class="flex items-center gap-2 mb-1">
-                    <span class="inline-block px-2 py-0.5 bg-brand-violetSoft text-brand-violetDark text-[9px] font-extrabold rounded uppercase tracking-wider">${report.tag}</span>
-                    <span class="text-[10px] text-slate-400 font-medium">${dateStr}</span>
-                </div>
-                <h3 class="font-display font-bold text-sm text-slate-900">${report.title}</h3>
-                <p class="text-xs text-slate-500 mt-1 leading-relaxed line-clamp-3">${getCompactSummary(report)}</p>
-            </div>
-        `;
-    }).join("");
-
-    lucide.createIcons();
 }
 
 // Génère le HTML d'une carte de rapport individuelle (avec Deep-dive dépliable)
@@ -935,6 +842,9 @@ function populateReports() {
             <div class="rounded-2xl border border-slate-200 overflow-hidden">
                 <button type="button" class="w-full flex items-start gap-3 p-5 bg-slate-50/60 hover:bg-slate-100 transition-colors text-left" onclick="toggleReportGroup('${groupId}')">
                     <i data-lucide="chevron-right" class="w-4 h-4 text-brand-violet mt-1 flex-shrink-0 transition-transform ${autoExpand ? 'rotate-90' : ''}" id="chevron-${topic.id}"></i>
+                    <span class="w-8 h-8 rounded-lg bg-${topic.color}-50 text-${topic.color}-600 flex items-center justify-center flex-shrink-0">
+                        <i data-lucide="${topic.icon}" class="w-4 h-4"></i>
+                    </span>
                     <div class="flex-1 min-w-0">
                         <div class="flex items-center gap-2 flex-wrap">
                             <h3 class="font-display font-bold text-base text-brand-ink">${topic.label}</h3>
@@ -1110,8 +1020,7 @@ function populateDashboardSignals() {
     container.innerHTML = "";
     activeNews.forEach((news, idx) => {
         const priorityIndex = news.displayRank || 1;
-        const mappedTopic = TOPICS_LIST.find(t => t.id === news.displayTopic);
-        const lName = mappedTopic ? mappedTopic.label : "Sujet";
+        const topicVisual = getTopicVisual(news.displayTopic);
         const lvl = state.readingLevel === "low" ? "lowLevel" : "highLevel";
         
         const itemDiv = document.createElement("div");
@@ -1120,7 +1029,10 @@ function populateDashboardSignals() {
             <div class="flex items-center justify-between gap-1.5 mb-1.5">
                 <span class="pill select-none">${news.tag}</span>
                 <div class="flex items-center gap-1">
-                    <span class="text-[10px] text-brand-violet font-bold select-none bg-brand-violetSoft px-2 py-0.5 rounded-full">#${priorityIndex} ${lName}</span>
+                    <span class="flex items-center gap-1 text-[10px] text-${topicVisual.color}-700 font-bold select-none bg-${topicVisual.color}-50 px-2 py-0.5 rounded-full">
+                        <i data-lucide="${topicVisual.icon}" class="w-2.5 h-2.5"></i>
+                        #${priorityIndex} ${topicVisual.label}
+                    </span>
                 </div>
             </div>
             <h4 class="font-display font-semibold text-slate-900 group-hover:text-brand-violet transition-colors text-sm leading-snug cursor-pointer" onclick="openArticle('${news.url}')" title="Lire l'article source">${news.title}</h4>
@@ -1214,8 +1126,7 @@ function populateNewsFeed() {
             }
         });
 
-        const topicObj = TOPICS_LIST.find(t => t.id === bestTopic);
-        const topicLabel = topicObj ? topicObj.label : "Sujet";
+        const topicVisual = getTopicVisual(bestTopic);
         const priorityRank = bestRank + 1;
 
         // Visual badges reflecting priorities in backend matching
@@ -1287,7 +1198,10 @@ function populateNewsFeed() {
                     <div class="p-4 border-b border-slate-100 flex items-center justify-between bg-white text-[10px] font-bold tracking-wider uppercase select-none">
                         <div class="flex items-center gap-2">
                             <span class="bg-brand-violet text-white px-2 py-0.5 rounded">${news.tag}</span>
-                            <span class="text-brand-muted">#${priorityRank} ${topicLabel}</span>
+                            <span class="flex items-center gap-1 text-${topicVisual.color}-700 bg-${topicVisual.color}-50 px-2 py-0.5 rounded">
+                                <i data-lucide="${topicVisual.icon}" class="w-2.5 h-2.5"></i>
+                                #${priorityRank} ${topicVisual.label}
+                            </span>
                         </div>
                     </div>
 
